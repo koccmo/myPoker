@@ -1,3 +1,11 @@
 # Project exclude paths
-/project/target/
-/target/
+target
+.bloop
+.history
+.metals
+.idea
+.vscode
+.java-version
+.DS_Store
+.scannerwork/
+.bsp
