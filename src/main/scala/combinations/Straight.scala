@@ -14,7 +14,7 @@ case object Straight extends Combination {
   override def startCombValue: Int = 4000000
 
   override def checkComb(listOfCards: List[Card]): Boolean = {
-    val listOfAllStraightComb: Set[List[Rank]] = straight.keySet
+    val listOfAllStraightComb: List[List[Rank]] = straight.keySet.toList
     val cardRank: List[Rank] = listOfCards.map(_.rank).sortBy(CardRankValue.cardRankValue)
 
     listOfAllStraightComb.map(_.diff(cardRank)).exists(_.isEmpty)

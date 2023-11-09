@@ -74,4 +74,14 @@ class StraightTest extends AnyFunSuite with Matchers {
     result shouldEqual 4000001
   }
 
+  test("Straight Comb Start From 4 Test") {
+
+    val listOfCardStraightStartFromFour: List[Card] = List(Card(Four, Clubs), Card(King, Spades), Card(Four, Hearts),
+      Card(Eight, Spades), Card(Seven, Spades), Card(Five, Diamonds), Card(Six, Diamonds))
+
+    val result: Int = Straight.getValueOfComb(listOfCardStraightStartFromFour)
+
+    result shouldEqual 4000004
+  }
+
 }
