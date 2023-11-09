@@ -35,7 +35,7 @@ object TexasHoldem {
 
   def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
     listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
-      case (char, index) if index % 2 == 0 => Rank.parse(char.toUpper)
+      case (char, index) if index % 2 == 0 => Rank.parse(char)
       case (char, index) if index % 2 == 1 => Suit.parse(char)
     })
   }
