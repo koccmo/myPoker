@@ -1,6 +1,6 @@
 package games
 
-import cards.PairCheck.listTableHandsString
+
 import cards.{Card, Rank, Suit}
 import cards.Rank.{Four, Ten, Two}
 import cards.Suit.Hearts

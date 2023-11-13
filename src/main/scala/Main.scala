@@ -9,7 +9,7 @@ object Main {
     val sourceInput = Source.fromFile("C:/Users/Koccm/IdeaProjects/myPoker/src/main/scala/input/myInput.txt")
     val linesInput = sourceInput.getLines().toList
 
-    val sourceAns = Source.fromFile("C:/Users/Koccm/IdeaProjects/myPoker/src/main/scala/input/output.txt")
+    val sourceAns = Source.fromFile("C:/Users/Koccm/IdeaProjects/myPoker/src/main/scala/output/output.txt")
     val lineAnswer = sourceAns.getLines().toList
 
     val programOutput = linesInput.map(line => process(line))
@@ -18,21 +18,21 @@ object Main {
     def findNotEqualAnswer(answerList: List[String], programAnswerList: List[String]) = {
 
       @tailrec
-      def helper(ansList: List[String], progAns: List[String], accList: List[String], numberOfLine: Int): List[String] = {
+      def helper(answerList: List[String], progAnswer: List[String], accList: List[String], numberOfLine: Int): List[String] = {
 
-        val newNumberOfLine: Int = ansList match {
+        val newNumberOfLine: Int = answerList match {
           case _ :: _ => numberOfLine + 1
           case Nil => numberOfLine
         }
 
-        val newAccList: List[String] = ansList match {
-          case head :: _ if head.equals(progAns.head)  => List.empty
-          case head :: _ if !head.equals(progAns.head) => accList :+ (head ++ s" ->  ${newNumberOfLine.toString} line number.")
+        val newAccList: List[String] = answerList match {
+          case head :: _ if head.equals(progAnswer.head)  => List.empty
+          case head :: _ if !head.equals(progAnswer.head) => accList :+ (head ++ s" ->  ${newNumberOfLine.toString} line number.")
           case _ => accList
         }
 
-        ansList match {
-          case _ :: tail => helper(tail, progAns.tail, newAccList, newNumberOfLine)
+        answerList match {
+          case _ :: tail => helper(tail, progAnswer.tail, newAccList, newNumberOfLine)
           case _ => newAccList
         }
       }
