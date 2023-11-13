@@ -111,3 +111,4 @@ texas-holdem 6d8dKcKdQd JsAs 6c3d Jd2h 2c8h 5d3c Ts2d KhQc 5c9d
 texas-holdem 3s7c8c9cAc As7d Kh3c 5d7h 4c8d 2c3d 6cJh
 texas-holdem 4c4s5d5s7h 6d8s Ks6c JhAs 8dJs AcQc Qd6h 3c2h 4h5c
 texas-holdem 5c5h5s8sAc 3h6d 6c9s 7cJd As6s 9cAd 4sTd Ts3d 8c8h
+texas-holdem 5c5h5s8sAc 3h6d 6c9s 7cJd As6s 9cAd 4sTd Ts3d 8c8o
