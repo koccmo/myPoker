@@ -35,8 +35,8 @@ object TexasHoldem {
 
   def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
     listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
-      case (char, index) if index % 2 == 0 => Rank.parse(char)
-      case (char, index) if index % 2 == 1 => Suit.parse(char)
+      case (char, index) if index % 2 == 0 => Rank.fromString(char.toString)
+      case (char, index) if index % 2 == 1 => Suit.fromString(char.toString)
     })
   }
 
@@ -137,20 +137,20 @@ object TexasHoldem {
 //  }
 
 
-  def getAnswer(listCharCards: List[String]): String = {
-    val existMyExceptionInList: Boolean = existListErrors(getListOfParsedRankAndSuitOrExceptionFromString(listCharCards))
+  def getAnswer(listStringCards: List[String]): String = {
+    val existMyExceptionInList: Boolean = existListErrors(getListOfParsedRankAndSuitOrExceptionFromString(listStringCards))
 
     existMyExceptionInList match {
-      case true  => getException(getListOfParsedRankAndSuitOrExceptionFromString(listCharCards)).description
+      case true  => getException(getListOfParsedRankAndSuitOrExceptionFromString(listStringCards)).description
       case false =>
-        val listOfParsedRankAndSuit = getListOfParsedRankAndSuitOrExceptionFromString(listCharCards)
+        val listOfParsedRankAndSuit = getListOfParsedRankAndSuitOrExceptionFromString(listStringCards)
           .map(x => x.collect { case Right(value) => value }) match {
           case Right(value) => value
         }
 
         val listOfCards: List[Card] = parseRankAndSuitToCards(listOfParsedRankAndSuit)
 
-        val listOfTuplesStringListCard: List[(String, List[Card])] = createListOfTupleHandListOfCards(listOfCards, listCharCards)
+        val listOfTuplesStringListCard: List[(String, List[Card])] = createListOfTupleHandListOfCards(listOfCards, listStringCards)
 
         val listOfTupleStringInt: List[(String, Int)] = listOfTuplesStringListCard.map(x => (x._1, getCardsValue(x._2)))
 

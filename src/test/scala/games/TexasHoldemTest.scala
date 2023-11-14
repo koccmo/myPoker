@@ -4,8 +4,7 @@ import cards.Card
 import cards.Rank.{Eight, Five, King, Nine, Queen, Six, Ten}
 import cards.Suit.{Hearts, Spades}
 import combinations.{Combination, Flush, FourOfKind, FullHouse, Pair, Straight, StraightFlush, ThreeOfKind, TwoPair}
-import exeption.{WrongHandCardsNumberException, WrongTableCardsNumberException}
-import org.scalactic.TripleEqualsSupport.Spread
+import exeption.MyException.{WrongHandCardsNumberException, WrongTableCardsNumberException}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -39,21 +38,21 @@ class TexasHoldemTest extends AnyFunSuite with Matchers{
     val result =
       TexasHoldem.getListOfParsedRankAndSuitOrExceptionFromString(List("AF", "AAAA"))
 
-    result shouldBe Left(WrongTableCardsNumberException)
+    result shouldBe Left(WrongTableCardsNumberException())
   }
 
   test("Not correct hand long cards test, return Exception") {
     val result =
       TexasHoldem.getListOfParsedRankAndSuitOrExceptionFromString(List("AFAFAFAFAF", "AAAA", "BBB"))
 
-    result shouldBe Left(WrongHandCardsNumberException)
+    result shouldBe Left(WrongHandCardsNumberException())
   }
 
   test("Not correct long Table And Hand Card, return Exception - Not correct table cards long"){
     val result =
       TexasHoldem.getListOfParsedRankAndSuitOrExceptionFromString(List("AFAFAFAFA", "AAAA", "BBB"))
 
-    result shouldBe Left(WrongTableCardsNumberException)
+    result shouldBe Left(WrongTableCardsNumberException())
   }
 
   test("Check exist list Errors - True"){

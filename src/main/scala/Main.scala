@@ -16,7 +16,6 @@ object Main {
 
 
     def findNotEqualAnswer(answerList: List[String], programAnswerList: List[String]) = {
-
       @tailrec
       def helper(answerList: List[String], progAnswer: List[String], accList: List[String], numberOfLine: Int): List[String] = {
 
