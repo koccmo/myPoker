@@ -1,8 +1,7 @@
 package games
 
 
-import cards.Rank.{King, Ten}
-import cards.Suit.Hearts
+
 import cards.{Board, Card, Hands, Rank, Suit}
 import combinations.{Combination, Flush, FourOfKind, FullHouse, HighCard, Pair, Straight, StraightFlush, ThreeOfKind, TwoPair}
 import exeption.MyException
