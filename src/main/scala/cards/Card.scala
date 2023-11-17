@@ -1,3 +1,3 @@
 package cards
 
-case class Card(rank: Rank, suit: Suit)
+final case class Card(rank: Rank, suit: Suit)

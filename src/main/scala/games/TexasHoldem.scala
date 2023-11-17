@@ -1,12 +1,12 @@
 package games
 
 
-import cards.{Card, Rank, Suit}
-import cards.Rank.{Four, Ten, Two}
+import cards.Rank.{King, Ten}
 import cards.Suit.Hearts
+import cards.{Board, Card, Hands, Rank, Suit}
 import combinations.{Combination, Flush, FourOfKind, FullHouse, HighCard, Pair, Straight, StraightFlush, ThreeOfKind, TwoPair}
 import exeption.MyException
-import exeption.MyException.{WrongHandCardsNumberException, WrongTableCardsNumberException}
+import exeption.MyException.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 import scala.annotation.tailrec
 
@@ -14,65 +14,109 @@ object TexasHoldem {
 
   val listOfCombination: List[Combination] = List( StraightFlush, FourOfKind, FullHouse, Flush, Straight, ThreeOfKind, Pair, TwoPair)
 
-  def checkBoardIncorrectLength(board: String): Boolean =
-    board
-      .split("")
-      .toList
-      .length != 10
 
-  def checkHandsIncorrectLength(hands: List[String]): Boolean =
-    hands
-      .map(_.split("").toList)
-      .exists(_.length != 4)
-
-  def getListOfParsedRankAndSuitOrExceptionFromString(listOfBoardAndHandCards: List[String]): Either[MyException, List[Either[MyException, Object]]] = {
-    listOfBoardAndHandCards match {
-      case board :: _ if checkBoardIncorrectLength(board) => Left(WrongTableCardsNumberException())
-      case _ :: hands if checkHandsIncorrectLength(hands) => Left(WrongHandCardsNumberException())
-      case _ => Right(parseToRankAndSuitOrException(listOfBoardAndHandCards))
-    }
-  }
-
-  def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
-    listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
-      case (char, index) if index % 2 == 0 => Rank.parse(char)
-      case (char, index) if index % 2 == 1 => Suit.parse(char)
-    })
-  }
-
-  def existListErrors(parsedString: Either[MyException,List[Either[MyException, Object]]]): Boolean =
-    parsedString match {
-      case Left(_) => true
-      case Right(x) if x.exists(_.isLeft) => true
-      case _ => false
+  def validateBoard(board: String): Either[MyException, Board] = {
+    def validateBoardSize(str: String): Either[MyException, List[String]] = {
+      if (str.length == 10) Right(str.grouped(2).toList)
+      else Left(WrongBoardStringLength(str.length))
     }
 
-  def getException(parsedString: Either[MyException,List[Either[MyException, Object]]]): MyException =
-    parsedString match {
-      case Left(value) => value
-      case Right(value) => value.collect{ case Left(x) => x }.head
-    }
-
-  def parseRankAndSuitToCards(listOfObject: List[Object]): List[Card] = {
-    listOfObject.grouped(2).collect {
-      case obRank :: obSuit :: Nil => (obRank, obSuit) match {
-        case (rank: Rank, suit: Suit) => Some(Card(rank, suit))
-        case _ => None
+    def validateCard(str: String): Either[MyException, Card] = {
+      str.split("").toList match {
+        case r :: s :: Nil => for {
+          rank <- Rank.fromString(r)
+          suit <- Suit.fromString(s)
+        } yield Card(rank, suit)
+        case _ => Left(WrongCardString())
       }
-    }.flatten.toList
+    }
+
+    validateBoardSize(board).flatMap { cardList => {
+      val result = cardList.map(validateCard)
+        .foldLeft((Option.empty[MyException], List.empty[Card])) { case ((exception, cards), value) =>
+          value.fold(exception => (Some(exception), cards), card => (exception, cards :+ card))
+        }
+
+      val (exceptionOpt, cards) = result
+
+      exceptionOpt match {
+        case Some(value) => Left(value)
+        case None => Right(Board(cards))
+      }
+     }
+    }
+
   }
 
-  def createListOfTupleHandListOfCards(listOfCards: List[Card],
-                                       listOfBoardAndHandCards: List[String]): List[(String, List[Card])] = {
-    val tableCards: List[Card] = listOfCards.take(5)
 
-    val listOfHandCards: List[List[Card]] =
-      listOfCards
-        .drop(5)
-        .grouped(2)
-        .toList
+  def validateHands(hands: List[String]): Either[MyException, Hands] = {
+    def validateSize(hands: List[String]): Either[MyException, List[String]] = {
+      if (hands.forall(_.length == 8)) Right(hands.flatMap(_.grouped(2)))
+      else Left(WrongHandStringLength())
+    }
 
-    val listHandCardString: List[String] = listOfBoardAndHandCards.drop(1)
+    def validateCard(hands: String): Either[MyException, Card] = {
+      hands.split("").toList match {
+        case r :: s :: Nil => for {
+          rank <- Rank.fromString(r)
+          suit <- Suit.fromString(s)
+        } yield Card(rank, suit)
+        case _ => Left(WrongCardString())
+      }
+    }
+
+    validateSize(hands).flatMap(handsCard => {
+      val result = handsCard.map(validateCard).foldLeft(
+        (Option.empty[MyException], List.empty[Card])) { case ((error, cards), value) =>
+      value.fold(exception => (Some(exception), cards), card => (error, cards :+ card))}
+
+      val(exception, cards) = result
+
+      exception match {
+        case Some(value) => Left(value)
+        case None => Right(Hands(cards.grouped(4).toList))
+      }
+    })
+
+    Right(Hands(List(List(Card(Ten, Hearts)))))
+  }
+
+
+
+
+
+//  def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
+//    listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
+//      case (char, index) if index % 2 == 0 => Rank.fromString(char.toString)
+//      case (char, index) if index % 2 == 1 => Suit.fromString(char.toString)
+//    })
+//  }
+
+//  def existListErrors(parsedString: Either[MyException, List[Either[MyException, Object]]]): Boolean =
+//    parsedString match {
+//      case Left(_) => true
+//      case Right(x) if x.exists(_.isLeft) => true
+//      case _ => false
+//    }
+
+//  def getException(parsedString: Either[MyException, List[Either[MyException, Object]]]): MyException =
+//    parsedString match {
+//      case Left(value) => value
+//      case Right(value) => value.collect { case Left(x) => x }.head
+//    }
+
+//  def parseRankAndSuitToCards(listOfObject: List[Object]): List[Card] = {
+//    listOfObject.grouped(2).collect {
+//      case obRank :: obSuit :: Nil => (obRank, obSuit) match {
+//        case (rank: Rank, suit: Suit) => Some(Card(rank, suit))
+//        case _ => None
+//      }
+//    }.flatten.toList
+//  }
+
+  def createListOfTupleHandListOfCards(board: Board, hands: Hands,
+                                       handsString: List[String]): List[(String, List[Card])] = {
+
 
     def getListTuple(tableCards: List[Card],
                      listOfHandCards: List[List[Card]],
@@ -95,7 +139,7 @@ object TexasHoldem {
       }
       helper(tableCards, listOfHandCards, listHandCardString, List.empty)
     }
-    getListTuple(tableCards, listOfHandCards, listHandCardString)
+    getListTuple(board.getCards, hands.getCards, handsString)
   }
 
 
@@ -137,25 +181,16 @@ object TexasHoldem {
 //  }
 
 
-  def getAnswer(listCharCards: List[String]): String = {
-    val existMyExceptionInList: Boolean = existListErrors(getListOfParsedRankAndSuitOrExceptionFromString(listCharCards))
-
-    existMyExceptionInList match {
-      case true  => getException(getListOfParsedRankAndSuitOrExceptionFromString(listCharCards)).description
-      case false =>
-        val listOfParsedRankAndSuit = getListOfParsedRankAndSuitOrExceptionFromString(listCharCards)
-          .map(x => x.collect { case Right(value) => value }) match {
-          case Right(value) => value
-        }
-
-        val listOfCards: List[Card] = parseRankAndSuitToCards(listOfParsedRankAndSuit)
-
-        val listOfTuplesStringListCard: List[(String, List[Card])] = createListOfTupleHandListOfCards(listOfCards, listCharCards)
-
-        val listOfTupleStringInt: List[(String, Int)] = listOfTuplesStringListCard.map(x => (x._1, getCardsValue(x._2)))
-
-        createAnswerFromTupleList(listOfTupleStringInt)
+  def getAnswer(board: String, hands: List[String]): String = {
+    validateBoard(board) match {
+      case Left(exception)    => exception.description
+      case Right(boardCards)  => validateHands(hands) match {
+        case Left(exception)  => exception.description
+        case Right(handCards) =>  createAnswerFromTupleList(
+          createListOfTupleHandListOfCards(boardCards, handCards, hands).map(x => (x._1, getCardsValue(x._2))))
+      }
     }
+
   }
 
 

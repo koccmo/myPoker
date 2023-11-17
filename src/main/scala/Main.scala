@@ -22,7 +22,7 @@ object Main {
 
         val newNumberOfLine: Int = answerList match {
           case _ :: _ => numberOfLine + 1
-          case Nil => numberOfLine
+          case Nil    => numberOfLine
         }
 
         val newAccList: List[String] = answerList match {

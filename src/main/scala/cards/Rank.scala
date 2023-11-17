@@ -20,21 +20,21 @@ object Rank{
   case object King extends Rank
   case object Ace extends Rank
 
- def parse(ch: Char): Either[MyException, Rank] = ch match {
-   case '2' => Right(Two)
-   case '3' => Right(Three)
-   case '4' => Right(Four)
-   case '5' => Right(Five)
-   case '6' => Right(Six)
-   case '7' => Right(Seven)
-   case '8' => Right(Eight)
-   case '9' => Right(Nine)
-   case 'T' => Right(Ten)
-   case 'J' => Right(Jack)
-   case 'Q' => Right(Queen)
-   case 'K' => Right(King)
-   case 'A' => Right(Ace)
-   case _ => Left(IncorrectRank(ch))
+ def fromString(s: String): Either[MyException, Rank] = s match {
+   case "2" => Right(Two)
+   case "3" => Right(Three)
+   case "4" => Right(Four)
+   case "5" => Right(Five)
+   case "6" => Right(Six)
+   case "7" => Right(Seven)
+   case "8" => Right(Eight)
+   case "9" => Right(Nine)
+   case "T" => Right(Ten)
+   case "J" => Right(Jack)
+   case "Q" => Right(Queen)
+   case "K" => Right(King)
+   case "A" => Right(Ace)
+   case _ => Left(IncorrectRank(s))
  }
 
 
