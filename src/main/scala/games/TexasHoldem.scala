@@ -51,7 +51,7 @@ object TexasHoldem {
 
   def validateHands(hands: List[String]): Either[MyException, Hands] = {
     def validateSize(hands: List[String]): Either[MyException, List[String]] = {
-      if (hands.forall(_.length == 8)) Right(hands.flatMap(_.grouped(2)))
+      if (hands.forall(_.length == 4)) Right(hands.flatMap(_.grouped(2)))
       else Left(WrongHandStringLength())
     }
 
@@ -65,7 +65,7 @@ object TexasHoldem {
       }
     }
 
-    validateSize(hands).flatMap(handsCard => {
+    validateSize(hands).flatMap( handsCard => {
       val result = handsCard.map(validateCard).foldLeft(
         (Option.empty[MyException], List.empty[Card])) { case ((error, cards), value) =>
       value.fold(exception => (Some(exception), cards), card => (error, cards :+ card))}
@@ -74,11 +74,10 @@ object TexasHoldem {
 
       exception match {
         case Some(value) => Left(value)
-        case None => Right(Hands(cards.grouped(4).toList))
+        case None => Right(Hands(cards.grouped(2).toList))
       }
     })
 
-    Right(Hands(List(List(Card(Ten, Hearts)))))
   }
 
 
@@ -139,6 +138,7 @@ object TexasHoldem {
       }
       helper(tableCards, listOfHandCards, listHandCardString, List.empty)
     }
+
     getListTuple(board.getCards, hands.getCards, handsString)
   }
 
@@ -183,8 +183,8 @@ object TexasHoldem {
 
   def getAnswer(board: String, hands: List[String]): String = {
     validateBoard(board) match {
-      case Left(exception)    => exception.description
-      case Right(boardCards)  => validateHands(hands) match {
+      case Left(exception)   => exception.description
+      case Right(boardCards) => validateHands(hands) match {
         case Left(exception)  => exception.description
         case Right(handCards) =>  createAnswerFromTupleList(
           createListOfTupleHandListOfCards(boardCards, handCards, hands).map(x => (x._1, getCardsValue(x._2))))
