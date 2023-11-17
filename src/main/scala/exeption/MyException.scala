@@ -13,10 +13,14 @@ sealed trait MyException {
    case class WrongBoardStringLength(length: Int) extends MyException {
      override def description: String = s"Error: wrong board string length - ($length)"
    }
+   // TODO: case class WrongHandStringLength() extends MyException =>
+   //       case object WrongHandStringLength extends MyException
    case class WrongHandStringLength() extends MyException {
      override def description: String = "Error: wrong hand string length"
    }
 
+   // TODO: case class WrongCardString() extends MyException =>
+   //       case object WrongCardString extends MyException
    case class WrongCardString() extends MyException {
      override def description: String = s"Wrong card string"
    }
