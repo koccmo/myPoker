@@ -41,7 +41,7 @@ object TexasHoldem {
             rank <- Rank.fromString(r)
             suit <- Suit.fromString(s)
           } yield Card(rank, suit)
-        case _ => Left(WrongCardString())
+        case _             => Left(WrongCardString())
       }
 
     validateBoardSize(board).flatMap { cardList =>
@@ -64,9 +64,7 @@ object TexasHoldem {
 
   def validateHands(hands: List[String]): Either[MyException, Hands] = {
     def validateSize(hands: List[String]): Either[MyException, List[String]] =
-      // TODO: why you validate against length of 4 symbols? What if I will put cards for 5 or 6 hands
-      // It should be valid for any amount of hands (by hand I mean Hand(cards: List[Card]))
-      // Reimplement hands validation using hand model Hand(cards: List[Card]
+      // TODO: Reimplement hands validation using hand model Hand(cards: List[Card]
       if (hands.forall(_.length == 4)) Right(hands.flatMap(_.grouped(2)))
       else Left(WrongHandStringLength())
 
@@ -96,6 +94,7 @@ object TexasHoldem {
     }
   }
 
+  // TODO: Why do you need here these commented code blocks?
 //  def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
 //    listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
 //      case (char, index) if index % 2 == 0 => Rank.fromString(char.toString)
@@ -190,6 +189,7 @@ object TexasHoldem {
 
     createAnswer(sortedList)
   }
+  // TODO: Why do you need here these commented code blocks?
 //  @tailrec
 //  def getValueOfCard(listOfCard: List[Card], listOfCombination: List[Combination]): Int = {
 //    listOfCombination match {
