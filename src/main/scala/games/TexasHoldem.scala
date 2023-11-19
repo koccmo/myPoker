@@ -64,7 +64,7 @@ object TexasHoldem {
 
   def validateHands(hands: List[String]): Either[MyException, Hands] = {
     def validateSize(hands: List[String]): Either[MyException, List[String]] =
-      // TODO: why you validate against length of 8 symbols? What if I will put cards for 5 or 6 hands
+      // TODO: why you validate against length of 4 symbols? What if I will put cards for 5 or 6 hands
       // It should be valid for any amount of hands (by hand I mean Hand(cards: List[Card]))
       // Reimplement hands validation using hand model Hand(cards: List[Card]
       if (hands.forall(_.length == 4)) Right(hands.flatMap(_.grouped(2)))
@@ -203,7 +203,7 @@ object TexasHoldem {
 //    listOfTupleHandListCard.map(x => (x._1, getValueOfCard(x._2, listOfCombination)))
 //  }
 
-  // TODO: such nested construction is difficult to read, I would for-comprehension here
+  // TODO: such nested construction is difficult to read, I would use for-comprehension here
   def getAnswer(board: String, hands: List[String]): String =
     validateBoard(board) match {
       case Left(exception)   => exception.description
