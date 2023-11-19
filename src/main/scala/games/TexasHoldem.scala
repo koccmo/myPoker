@@ -41,7 +41,7 @@ object TexasHoldem {
             rank <- Rank.fromString(r)
             suit <- Suit.fromString(s)
           } yield Card(rank, suit)
-        case _             => Left(WrongCardString())
+        case _ => Left(WrongCardString())
       }
 
     validateBoardSize(board).flatMap { cardList =>
@@ -63,13 +63,12 @@ object TexasHoldem {
   }
 
   def validateHands(hands: List[String]): Either[MyException, Hands] = {
-    def validateSize(hands: List[String]): Either[MyException, List[String]] = {
+    def validateSize(hands: List[String]): Either[MyException, List[String]] =
       // TODO: why you validate against length of 8 symbols? What if I will put cards for 5 or 6 hands
       // It should be valid for any amount of hands (by hand I mean Hand(cards: List[Card]))
       // Reimplement hands validation using hand model Hand(cards: List[Card]
-      if (hands.forall(_.length == 8)) Right(hands.flatMap(_.grouped(2)))
+      if (hands.forall(_.length == 4)) Right(hands.flatMap(_.grouped(2)))
       else Left(WrongHandStringLength())
-    }
 
     // TODO: check my comment above related to this method
     def validateCard(hands: String): Either[MyException, Card] =
@@ -95,38 +94,36 @@ object TexasHoldem {
         case None        => Right(Hands(cards.grouped(4).toList))
       }
     }
-
-    Right(Hands(List(List(Card(Ten, Hearts)))))
   }
 
-  //  def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
-  //    listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
-  //      case (char, index) if index % 2 == 0 => Rank.fromString(char.toString)
-  //      case (char, index) if index % 2 == 1 => Suit.fromString(char.toString)
-  //    })
-  //  }
+//  def parseToRankAndSuitOrException(listStringCards: List[String]): List[Either[MyException, Object]] = {
+//    listStringCards.map(_.split("(?<=\\G..)")).flatMap(_.flatMap(_.zipWithIndex).map {
+//      case (char, index) if index % 2 == 0 => Rank.fromString(char.toString)
+//      case (char, index) if index % 2 == 1 => Suit.fromString(char.toString)
+//    })
+//  }
 
-  //  def existListErrors(parsedString: Either[MyException, List[Either[MyException, Object]]]): Boolean =
-  //    parsedString match {
-  //      case Left(_) => true
-  //      case Right(x) if x.exists(_.isLeft) => true
-  //      case _ => false
-  //    }
+//  def existListErrors(parsedString: Either[MyException, List[Either[MyException, Object]]]): Boolean =
+//    parsedString match {
+//      case Left(_) => true
+//      case Right(x) if x.exists(_.isLeft) => true
+//      case _ => false
+//    }
 
-  //  def getException(parsedString: Either[MyException, List[Either[MyException, Object]]]): MyException =
-  //    parsedString match {
-  //      case Left(value) => value
-  //      case Right(value) => value.collect { case Left(x) => x }.head
-  //    }
+//  def getException(parsedString: Either[MyException, List[Either[MyException, Object]]]): MyException =
+//    parsedString match {
+//      case Left(value) => value
+//      case Right(value) => value.collect { case Left(x) => x }.head
+//    }
 
-  //  def parseRankAndSuitToCards(listOfObject: List[Object]): List[Card] = {
-  //    listOfObject.grouped(2).collect {
-  //      case obRank :: obSuit :: Nil => (obRank, obSuit) match {
-  //        case (rank: Rank, suit: Suit) => Some(Card(rank, suit))
-  //        case _ => None
-  //      }
-  //    }.flatten.toList
-  //  }
+//  def parseRankAndSuitToCards(listOfObject: List[Object]): List[Card] = {
+//    listOfObject.grouped(2).collect {
+//      case obRank :: obSuit :: Nil => (obRank, obSuit) match {
+//        case (rank: Rank, suit: Suit) => Some(Card(rank, suit))
+//        case _ => None
+//      }
+//    }.flatten.toList
+//  }
 
   def createListOfTupleHandListOfCards(
     board: Board,
@@ -193,18 +190,18 @@ object TexasHoldem {
 
     createAnswer(sortedList)
   }
-  //  @tailrec
-  //  def getValueOfCard(listOfCard: List[Card], listOfCombination: List[Combination]): Int = {
-  //    listOfCombination match {
-  //      case head :: _ if head.checkComb(listOfCard)     => head.getValueOfComb(listOfCard)
-  //      case head :: tail if !head.checkComb(listOfCard) => getValueOfCard(listOfCard, tail)
-  //      case _                                           => HighCard.getValueOfComb(listOfCard)
-  //    }
-  //  }
+//  @tailrec
+//  def getValueOfCard(listOfCard: List[Card], listOfCombination: List[Combination]): Int = {
+//    listOfCombination match {
+//      case head :: _ if head.checkComb(listOfCard)     => head.getValueOfComb(listOfCard)
+//      case head :: tail if !head.checkComb(listOfCard) => getValueOfCard(listOfCard, tail)
+//      case _                                           => HighCard.getValueOfComb(listOfCard)
+//    }
+//  }
 
-  //  def getListTupleHandValue(listOfTupleHandListCard: List[(String, List[Card])]): List[(String, Int)] = {
-  //    listOfTupleHandListCard.map(x => (x._1, getValueOfCard(x._2, listOfCombination)))
-  //  }
+//  def getListTupleHandValue(listOfTupleHandListCard: List[(String, List[Card])]): List[(String, Int)] = {
+//    listOfTupleHandListCard.map(x => (x._1, getValueOfCard(x._2, listOfCombination)))
+//  }
 
   // TODO: such nested construction is difficult to read, I would for-comprehension here
   def getAnswer(board: String, hands: List[String]): String =
@@ -219,5 +216,4 @@ object TexasHoldem {
             )
         }
     }
-
 }
