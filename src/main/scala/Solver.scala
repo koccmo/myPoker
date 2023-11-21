@@ -1,4 +1,4 @@
-import games.TexasHoldem
+import gamesType.TexasHoldem
 
 object Solver {
   // TODO: implement solution logic

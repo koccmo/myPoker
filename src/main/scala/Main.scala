@@ -27,7 +27,7 @@ object Main {
 
         val newAccList: List[String] = answerList match {
           case head :: _ if head.equals(progAnswer.head)  => List.empty
-          case head :: _ if !head.equals(progAnswer.head) => accList :+ (head ++ s" ->  ${newNumberOfLine.toString} line number.")
+          case head :: _ if !head.equals(progAnswer.head) => accList :+ (head ++ s" ->  ${newNumberOfLine.toString} line number. ProgAnswer - ${progAnswer.head}")
           case _ => accList
         }
 

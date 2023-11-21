@@ -3,6 +3,7 @@ package combinations
 import cards.Card
 import cards.Rank.{Ace, Queen, Seven, Six, Ten}
 import cards.Suit.{Clubs, Diamonds, Hearts, Spades}
+import combinations.Combination.TwoPair
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

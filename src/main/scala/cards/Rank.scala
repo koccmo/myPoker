@@ -1,7 +1,7 @@
 package cards
 
-import exeption.MyException
-import exeption.MyException.IncorrectRank
+import exception.MyException
+import exception.MyException.IncorrectRank
 
 sealed trait Rank
 

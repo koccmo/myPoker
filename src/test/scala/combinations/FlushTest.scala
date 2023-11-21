@@ -3,6 +3,7 @@ package combinations
 import cards.Card
 import cards.Rank._
 import cards.Suit._
+import combinations.Combination.Flush
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

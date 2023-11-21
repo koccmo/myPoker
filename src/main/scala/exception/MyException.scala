@@ -1,4 +1,4 @@
-package exeption
+package exception
 
 sealed trait MyException {
   def description: String
@@ -15,13 +15,13 @@ sealed trait MyException {
    }
    // TODO: case class WrongHandStringLength() extends MyException =>
    //       case object WrongHandStringLength extends MyException
-   case class WrongHandStringLength() extends MyException {
+   case object WrongHandStringLength extends MyException {
      override def description: String = "Error: wrong hand string length"
    }
 
    // TODO: case class WrongCardString() extends MyException =>
    //       case object WrongCardString extends MyException
-   case class WrongCardString() extends MyException {
+   case object WrongCardString extends MyException {
      override def description: String = s"Wrong card string"
    }
 
