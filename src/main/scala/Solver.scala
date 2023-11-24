@@ -1,16 +1,25 @@
 import gamesType.TexasHoldem
+import validation.Validator
 
 object Solver {
   // TODO: implement solution logic
   def process(line: String): String = {
-    val ErrorPrefix = "Error: "
 
     line.split("\\s+").toList match {
-      case "texas-holdem" :: board :: hands => TexasHoldem.getAnswer(board, hands)
-      case "omaha-holdem" :: board :: hands => ErrorPrefix + "The solution doesn't support Omaha Hold'em"
-      case "five-card-draw" :: hands => ErrorPrefix + "The solution doesn't support Five Card Draw"
-      case x :: _ => ErrorPrefix + "Unrecognized game type"
-      case _ => ErrorPrefix + "Invalid input"
+      case "texas-holdem" :: board :: listHand => val result =  for {
+        board <- Validator.validateBoard(board)
+        hands <- Validator.validateHands(listHand)
+      } yield TexasHoldem.getAnswer(board, hands, listHand)
+
+        result match {
+          case Left(error)  => error.description
+          case Right(value) => value
+        }
+
+      case "omaha-holdem" :: board :: hands => "The solution doesn't support Omaha Hold'em"
+      case "five-card-draw" :: hands => "The solution doesn't support Five Card Draw"
+      case x :: _ => "Unrecognized game type"
+      case _ => "Invalid input"
     }
   }
 

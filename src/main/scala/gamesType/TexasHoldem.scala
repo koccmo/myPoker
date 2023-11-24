@@ -71,20 +71,10 @@ object TexasHoldem {
   }
 
   // TODO: such nested construction is difficult to read, I would use for-comprehension here
-  def getAnswer(board: String, hands: List[String]): String = {
-
-    val answer = for {
-      board <- Validator.validateBoard(board)
-      listHand <- Validator.validateHands(hands)
-    } yield createAnswerFromTuple(
-      createListOfTupleHandListOfCards(board, listHand, hands)
-        .map { case (string, cards) => (string, Combination.getCardValue(cards))})
-
-    answer match {
-      case Right(value) => value
-      case Left(exception) => exception.description
-    }
-
+  def getAnswer(board: Board, hands: List[Hand], listHand: List[String]): String = {
+    createAnswerFromTuple(
+      createListOfTupleHandListOfCards(board, hands, listHand)
+        .map { case (string, cards) => (string, Combination.getCardValue(cards)) })
   }
 
 
