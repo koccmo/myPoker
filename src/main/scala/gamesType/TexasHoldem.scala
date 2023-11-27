@@ -1,7 +1,7 @@
 package gamesType
 
 
-import cards.{Board, Card, Hand}
+import cards.{Board, Hand}
 import combinations.Combination
 import validation.Validator
 
@@ -9,48 +9,30 @@ import scala.annotation.tailrec
 
 object TexasHoldem {
 
-
-  def createListOfTupleHandListOfCards(
-    board: Board,
-    hands: List[Hand],
-    handsString: List[String]
-  ): List[(String, List[Card])] = {
-
-    def getListTuple(
-      tableCards: List[Card],
-      listOfHandCards: List[Hand],
-      listHandCardString: List[String]
-    ): List[(String, List[Card])] = {
-      @tailrec
-      def helper(
-        tableCards: List[Card],
-        listOfHandCards: List[Hand],
-        listHandCardString: List[String],
-        acc: List[(String, List[Card])]
-      ): List[(String, List[Card])] = {
-
-        val newAcc: List[(String, List[Card])] = listOfHandCards match {
-          case head :: _ => acc :+ (listHandCardString.head -> (tableCards ::: head.cards))
-          case _         => acc
-        }
-
-        listOfHandCards match {
-          case _ :: tail => helper(tableCards, tail, listHandCardString.tail, newAcc)
-          case _         => newAcc
-        }
+  def createTuples(board: Board, hands: List[Hand]): List[(Hand, Int)] = {
+    @tailrec
+    def helper(board: Board, hands: List[Hand], acc: List[(Hand, Int)]): List[(Hand, Int)] = {
+      val newAcc: List[(Hand, Int)] = hands match {
+        case head :: _ => acc :+ (head, Combination.getCardValue(board.cards ++ head.cards))
+        case Nil => acc
       }
 
-      helper(tableCards, listOfHandCards, listHandCardString, List.empty)
+      hands match {
+        case _ :: tail => helper(board, tail, newAcc)
+        case _ => newAcc
+      }
     }
 
-    getListTuple(board.cards, hands, handsString)
+    helper(board, hands, List.empty)
   }
 
+  def createAnswer(tuples: List[(Hand, Int)]): String = {
+    val sortedTuples = tuples
+      .map{ case (hand, value) => (hand.toString, value) }
+      .sorted
+      .sortBy { case (_, int) => int }
 
-  def createAnswerFromTuple(tuples: List[(String, Int)]): String = {
-    val sortedTuples = tuples.sorted.sortBy(_._2)
-
-    def createAnswer(sortedTuples: List[(String, Int)]): String = {
+    def transform(tuples: List[(String, Int)]): String = {
       @tailrec
       def helper(
         list: List[(String, Int)],
@@ -64,17 +46,22 @@ object TexasHoldem {
           case _                                          => accAnswer
         }
 
-      helper(sortedTuples, "", 0)
+      helper(tuples, "", 0)
     }
 
-    createAnswer(sortedTuples)
+    transform(sortedTuples)
   }
 
-  // TODO: such nested construction is difficult to read, I would use for-comprehension here
-  def getAnswer(board: Board, hands: List[Hand], listHand: List[String]): String = {
-    createAnswerFromTuple(
-      createListOfTupleHandListOfCards(board, hands, listHand)
-        .map { case (string, cards) => (string, Combination.getCardValue(cards)) })
+  def getAnswer(board: String, hands: List[String]): String = {
+    val result = for {
+      board <- Validator.validateBoard(board)
+      hands <- Validator.validateHands(hands)
+    } yield createAnswer(createTuples(board, hands))
+
+    result match {
+      case Left(validationError) => validationError.description
+      case Right(value) => value
+    }
   }
 
 

@@ -1,14 +1,11 @@
 package combinations
-
 import cards.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
 import cards.{Card, CardRankValue, Rank}
 
-import scala.collection.immutable.List
-
-// TODO it is supposed to be sealed trait
 sealed trait Combination {
 
   def getValueOfComb(listOfCards: List[Card]): Int
+
   def checkComb(listOfCards: List[Card]): Boolean
 }
 
@@ -32,6 +29,7 @@ object Combination {
       }
       .getOrElse(HighCard.getValueOfComb(cardList))
   }
+
   case object HighCard extends Combination {
     override def getValueOfComb(listOfCards: List[Card]): Int = {
       val allCardRank: List[Rank] = listOfCards
@@ -54,13 +52,12 @@ object Combination {
 
     val startCombValue: Int = 1000000
 
-    override def checkComb(listOfCards: List[Card]): Boolean = {
-      listOfCards
+    override def checkComb(listOfCards: List[Card]): Boolean = listOfCards
         .groupBy(_.rank)
         .filter(_._2.length == 2)
         .toList
         .length == 1
-    }
+
 
     override def getValueOfComb(listOfCards: List[Card]): Int = {
       val allCardsRanks: List[Rank] = listOfCards

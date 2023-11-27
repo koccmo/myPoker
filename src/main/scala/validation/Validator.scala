@@ -1,13 +1,12 @@
 package validation
 
 import cards.{Board, Card, Hand, Rank, Suit}
-import exception.MyException
-import exception.MyException.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
+import validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 
 object Validator {
 
-  def validateCard(str: String): Either[MyException, Card] =
+  def validateCard(str: String): Either[ValidationError, Card] =
     str.split("").toList match {
       case r :: s :: Nil =>
         for {
@@ -17,8 +16,8 @@ object Validator {
       case _ => Left(WrongCardString)
     }
 
-  def validateBoard(board: String): Either[MyException, Board] = {
-    def validateBoardSize(str: String): Either[MyException, List[String]] =
+  def validateBoard(board: String): Either[ValidationError, Board] = {
+    def validateBoardSize(str: String): Either[ValidationError, List[String]] =
       if (str.length == 10) Right(str.grouped(2).toList)
       else Left(WrongBoardStringLength(str.length))
 
@@ -26,7 +25,7 @@ object Validator {
       val result =
         cardList
           .map(validateCard)
-          .foldLeft((Option.empty[MyException], List.empty[Card])) {
+          .foldLeft((Option.empty[ValidationError], List.empty[Card])) {
             case ((exception, cards), value) =>
               value.fold(exception => (Some(exception), cards), card => (exception, cards :+ card))
           }
@@ -40,13 +39,13 @@ object Validator {
     }
   }
 
-  def validateHands(hands: List[String]): Either[MyException, List[Hand]] = {
-    def validateSize(hands: List[String]): Either[MyException, List[String]] =
+  def validateHands(hands: List[String]): Either[ValidationError, List[Hand]] = {
+    def validateSize(hands: List[String]): Either[ValidationError, List[String]] =
       if (hands.forall(_.length == 4)) Right(hands.flatMap(_.grouped(2)))
       else Left(WrongHandStringLength)
 
     validateSize(hands).flatMap { handsCard =>
-      val result = handsCard.map(validateCard).foldLeft((Option.empty[MyException], List.empty[Card])) {
+      val result = handsCard.map(validateCard).foldLeft((Option.empty[ValidationError], List.empty[Card])) {
         case ((error, cards), value) =>
           value.fold(exception => (Some(exception), cards), card => (error, cards :+ card))
       }
