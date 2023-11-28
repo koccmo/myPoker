@@ -1,4 +1,4 @@
-import gamesType.TexasHoldem
+import gamesTypes.TexasHoldem
 
 object Solver {
 

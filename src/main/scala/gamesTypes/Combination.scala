@@ -1,6 +1,7 @@
-package combinations
-import cards.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
-import cards.{Card, CardRankValue, Rank}
+package gamesTypes
+
+import domain.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
+import domain.{Card, Rank}
 
 sealed trait Combination {
 
@@ -53,10 +54,10 @@ object Combination {
     val startCombValue: Int = 1000000
 
     override def checkComb(listOfCards: List[Card]): Boolean = listOfCards
-        .groupBy(_.rank)
-        .filter(_._2.length == 2)
-        .toList
-        .length == 1
+      .groupBy(_.rank)
+      .filter(_._2.length == 2)
+      .toList
+      .length == 1
 
 
     override def getValueOfComb(listOfCards: List[Card]): Int = {

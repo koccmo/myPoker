@@ -1,6 +1,7 @@
-package cards
+package gamesTypes
 
-import cards.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
+import domain.Rank
+import domain.Rank._
 
 import scala.annotation.tailrec
 

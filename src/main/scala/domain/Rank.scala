@@ -1,4 +1,4 @@
-package cards
+package domain
 import validation.ValidationError
 import validation.ValidationError.IncorrectRank
 

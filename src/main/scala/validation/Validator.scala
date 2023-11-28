@@ -1,6 +1,6 @@
 package validation
 
-import cards.{Board, Card, Hand, Rank, Suit}
+import domain.{Board, Card, Hand, Rank, Suit}
 import validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 

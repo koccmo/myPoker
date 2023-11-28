@@ -1,9 +1,9 @@
 package combinations
 
-import cards.Card
-import cards.Rank.{Ace, Five, Jack, Nine, Queen, Seven, Two}
-import cards.Suit.{Clubs, Diamonds, Hearts, Spades}
-import combinations.Combination.HighCard
+import domain.Card
+import domain.Rank.{Ace, Five, Jack, Nine, Queen, Seven, Two}
+import domain.Suit.{Clubs, Diamonds, Hearts, Spades}
+import gamesTypes.Combination.HighCard
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

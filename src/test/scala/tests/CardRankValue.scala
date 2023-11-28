@@ -1,7 +1,8 @@
 package tests
 
-import cards.{CardRankValue, Rank}
-import cards.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
+import domain.Rank
+import domain.Rank.{Ace, Eight, Five, Four, Jack, King, Nine, Queen, Seven, Six, Ten, Three, Two}
+import gamesTypes.CardRankValue
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

@@ -1,4 +1,8 @@
 import Solver.process
+import domain.Card
+import domain.Rank.Two
+import domain.Suit.Hearts
+
 import scala.io.StdIn
 
 object Main {
