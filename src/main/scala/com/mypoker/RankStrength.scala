@@ -1,11 +1,10 @@
-package gamesTypes
+package com.mypoker
 
-import domain.Rank
-import domain.Rank._
-
+import com.mypoker.domain.Rank
+import com.mypoker.domain.Rank._
 import scala.annotation.tailrec
 
-object CardRankValue {
+object RankStrength {
   val firstLapCard: Map[Rank, Int] = Map(Two -> 38000, Three -> 76000, Four -> 114000, Five -> 152000, Six -> 190000,
     Seven -> 228000, Eight -> 266000, Nine -> 304000, Ten -> 342000, Jack -> 380000, Queen -> 418000, King -> 456000, Ace -> 494000)
 
@@ -21,7 +20,7 @@ object CardRankValue {
   val cardRankValue: Map[Rank, Int] = Map(Two -> 1, Three -> 2, Four -> 3, Five -> 4, Six -> 5, Seven -> 6, Eight -> 7, Nine -> 8,
     Ten -> 9, Jack -> 10, Queen -> 11, King -> 12, Ace -> 13)
 
-  def getValueOfCards(listOfCards: List[Rank]): Int = {
+  def getRankStrength(listOfCards: List[Rank]): Int = {
     @tailrec
     def helper(listOfCards: List[Rank], acc: Int): Int = {
       val newAcc = listOfCards.length match {

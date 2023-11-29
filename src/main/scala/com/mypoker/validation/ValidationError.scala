@@ -1,4 +1,4 @@
-package validation
+package com.mypoker.validation
 
 sealed trait ValidationError {
   def description: String

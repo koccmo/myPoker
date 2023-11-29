@@ -1,8 +1,6 @@
-import Solver.process
-import domain.Card
-import domain.Rank.Two
-import domain.Suit.Hearts
+package com.mypoker
 
+import com.mypoker.Solver.process
 import scala.io.StdIn
 
 object Main {

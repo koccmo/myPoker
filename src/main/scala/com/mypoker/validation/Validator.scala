@@ -1,8 +1,7 @@
-package validation
+package com.mypoker.validation
 
-import domain.{Board, Card, Hand, Rank, Suit}
-import validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
-
+import com.mypoker.domain.{Board, Card, Hand, Rank, Suit}
+import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 object Validator {
 

@@ -1,9 +1,9 @@
 package combinations
 
-import domain.Card
-import domain.Rank._
-import domain.Suit._
-import gamesTypes.Combination.ThreeOfKind
+import com.mypoker.Combination.ThreeOfKind
+import com.mypoker.domain.Card
+import com.mypoker.domain.Rank._
+import com.mypoker.domain.Suit._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

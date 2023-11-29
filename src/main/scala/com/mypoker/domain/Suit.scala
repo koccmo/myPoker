@@ -1,6 +1,6 @@
-package domain
-import validation.ValidationError
-import validation.ValidationError.IncorrectSuit
+package com.mypoker.domain
+
+import com.mypoker.validation.ValidationError
 
 sealed trait Suit
 
@@ -23,6 +23,6 @@ object Suit{
     case "d" => Right(Diamonds)
     case "c" => Right(Clubs)
     case "s" => Right(Spades)
-    case _ => Left(IncorrectSuit(s))
+    case _ => Left(ValidationError.IncorrectSuit(s))
   }
 }

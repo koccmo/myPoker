@@ -1,4 +1,6 @@
-import gamesTypes.TexasHoldem
+package com.mypoker
+
+import com.mypoker.gametypes.TexasHoldem
 
 object Solver {
 
