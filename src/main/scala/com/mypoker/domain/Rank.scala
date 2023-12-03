@@ -48,6 +48,5 @@ object Rank{
    case "A" => Right(Ace)
    case _ => Left(ValidationError.IncorrectRank(s))
  }
-
 }
 

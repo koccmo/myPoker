@@ -28,7 +28,7 @@ class ThreeOfKindTest extends AnyFunSuite with Matchers {
   test("Two times of Three of Kind Test"){
     val listOfCardWithTwoTimesThreeOfKind: List[Card] = List(Card(Ten, Hearts), Card(Seven, Hearts), Card(Ace, Clubs),
       Card(Ten, Diamonds), Card(Seven, Spades), Card(Seven, Spades), Card(Ten, Hearts))
-    val result: Int = ThreeOfKind.getValueOfComb(listOfCardWithTwoTimesThreeOfKind)
+    val result: Int = ThreeOfKind.getCombStrength(listOfCardWithTwoTimesThreeOfKind)
 
     result shouldEqual 3009201
   }
@@ -36,7 +36,7 @@ class ThreeOfKindTest extends AnyFunSuite with Matchers {
   test("One times of Three of Kind Test"){
     val listOfCardWithTwoTimesThreeOfKind: List[Card] = List(Card(Ten, Hearts), Card(Queen, Hearts), Card(Ace, Clubs),
       Card(Ten, Diamonds), Card(Jack, Spades), Card(Seven, Spades), Card(Ten, Hearts))
-    val result: Int = ThreeOfKind.getValueOfComb(listOfCardWithTwoTimesThreeOfKind)
+    val result: Int = ThreeOfKind.getCombStrength(listOfCardWithTwoTimesThreeOfKind)
 
     result shouldEqual 3009206
   }

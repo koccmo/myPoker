@@ -31,7 +31,7 @@ class FourOfKindTest extends AnyFunSuite with Matchers {
     val cardListFourOfKindAce: List[Card] = List(Card(Queen, Hearts), Card(Ace, Hearts), Card(Ace, Hearts),
       Card(Nine, Hearts), Card(Ace, Hearts), Card(Six, Hearts), Card(Ace, Hearts))
 
-    val result: Int = FourOfKind.getValueOfComb(cardListFourOfKindAce)
+    val result: Int = FourOfKind.getCombStrength(cardListFourOfKindAce)
 
     result shouldEqual 7001311
   }
@@ -40,7 +40,7 @@ class FourOfKindTest extends AnyFunSuite with Matchers {
     val cardListFourOfKindTwoAndTen: List[Card] = List(Card(Eight, Hearts), Card(Two, Hearts), Card(Two, Hearts),
       Card(Nine, Hearts), Card(Two, Hearts), Card(Ten, Hearts), Card(Two, Hearts))
 
-    val result: Int = FourOfKind.getValueOfComb(cardListFourOfKindTwoAndTen)
+    val result: Int = FourOfKind.getCombStrength(cardListFourOfKindTwoAndTen)
 
     result shouldEqual 7000109
   }
@@ -49,7 +49,7 @@ class FourOfKindTest extends AnyFunSuite with Matchers {
     val cardListFourOfKindTenAndSix: List[Card] = List(Card(Ten, Hearts), Card(Five, Hearts), Card(Ten, Hearts),
       Card(Ten, Hearts), Card(Six, Hearts), Card(Ten, Hearts), Card(Six, Hearts))
 
-    val result: Int = FourOfKind.getValueOfComb(cardListFourOfKindTenAndSix)
+    val result: Int = FourOfKind.getCombStrength(cardListFourOfKindTenAndSix)
 
     result shouldEqual 7000905
   }

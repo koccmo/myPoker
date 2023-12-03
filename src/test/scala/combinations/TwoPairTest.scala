@@ -13,7 +13,7 @@ class TwoPairTest extends AnyFunSuite with Matchers {
     val listOfCards: List[Card] = List(Card(Ten, Hearts), Card(Seven, Hearts), Card(Ace, Clubs),
       Card(Six, Diamonds), Card(Seven, Spades), Card(Ace, Spades), Card(Queen, Hearts))
 
-    val result: Int = TwoPair.getValueOfComb(listOfCards)
+    val result: Int = TwoPair.getCombStrength(listOfCards)
 
     result shouldEqual 2013311
   }
@@ -21,7 +21,7 @@ class TwoPairTest extends AnyFunSuite with Matchers {
   test("Three pair test"){
     val listOfCards: List[Card] = List(Card(Ten, Hearts), Card(Seven, Hearts), Card(Ace, Clubs),
       Card(Six, Diamonds), Card(Seven, Spades), Card(Ace, Spades), Card(Ten, Hearts))
-    val result: Int = TwoPair.getValueOfComb(listOfCards)
+    val result: Int = TwoPair.getCombStrength(listOfCards)
 
     result shouldEqual 2013456
   }

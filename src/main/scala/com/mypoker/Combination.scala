@@ -1,11 +1,11 @@
 package com.mypoker
 
-import com.mypoker.domain.{Card, Rank}
 import com.mypoker.domain.Rank._
+import com.mypoker.domain.{Card, Rank}
 
 sealed trait Combination {
 
-  def getValueOfComb(listOfCards: List[Card]): Int
+  def getCombStrength(listOfCards: List[Card]): Int
 
   def checkComb(listOfCards: List[Card]): Boolean
 
@@ -24,23 +24,24 @@ object Combination {
     Pair,
     HighCard
   )
-  def getCardValue(cardList: List[Card]): Int = {
+
+  def getStrength(cardList: List[Card]): Int = {
     listOfCombination
       .collectFirst {
-        case comb if comb.checkComb(cardList) => comb.getValueOfComb(cardList)
+        case comb if comb.checkComb(cardList) => comb.getCombStrength(cardList)
       }
-      .getOrElse(HighCard.getValueOfComb(cardList))
+      .getOrElse(HighCard.getCombStrength(cardList))
   }
 
   case object HighCard extends Combination {
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val allCardRank: List[Rank] = listOfCards
         .map(x => x.rank)
-        .sortBy(RankStrength.cardRankValue)
+        .sortBy(CardValue.cardRankValue)
         .reverse
         .take(5)
 
-      RankStrength.getRankStrength(allCardRank)
+      CardValue.getValue(allCardRank)
     }
 
     override def checkComb(listOfCards: List[Card]): Boolean = true
@@ -61,10 +62,10 @@ object Combination {
       .length == 1
 
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val allCardsRanks: List[Rank] = listOfCards
         .map(_.rank)
-        .sortBy(RankStrength.cardRankValue)
+        .sortBy(CardValue.cardRankValue)
 
 
       val pair: List[Rank] = listOfCards
@@ -79,7 +80,7 @@ object Combination {
         .drop(2)
         .reverse
 
-      startCombValue + pairValue(pair) + RankStrength.getRankStrength(allCardRanksWithoutPair)
+      startCombValue + pairValue(pair) + CardValue.getValue(allCardRanksWithoutPair)
     }
   }
 
@@ -106,10 +107,10 @@ object Combination {
         .length >= 2
     }
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val allCardsRanks: List[Rank] = listOfCards
         .map(_.rank)
-        .sortBy(RankStrength.cardRankValue)
+        .sortBy(CardValue.cardRankValue)
 
       val listOfPairRank: List[List[Rank]] = listOfCards
         .groupBy(_.rank)
@@ -126,14 +127,14 @@ object Combination {
         startCombValue +
           secondPairValue(listStrongestTwoPairRank.head) +
           firstPairValue(listStrongestTwoPairRank.last) +
-          RankStrength.getRankStrength(topRankOfRest)
+          CardValue.getValue(topRankOfRest)
       } else {
         val topRankOfRest: List[Rank] = allCardsRanks.diff(listOfPairRank.flatten).reverse.take(1)
 
         startCombValue +
           secondPairValue(listOfPairRank.head) +
           firstPairValue(listOfPairRank.last) +
-          RankStrength.getRankStrength(topRankOfRest)
+          CardValue.getValue(topRankOfRest)
       }
     }
   }
@@ -163,10 +164,10 @@ object Combination {
         .groupBy(_.rank)
         .exists(_._2.length == 3)
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val cardRankList: List[Rank] = listOfCards
         .map(_.rank)
-        .sortBy(RankStrength.cardRankValue)
+        .sortBy(CardValue.cardRankValue)
 
       val listOfTopThreeOfKindsRank: List[Rank] = listOfCards
         .groupBy(_.rank)
@@ -186,7 +187,7 @@ object Combination {
 
       startCombValue +
         threeOfKind(listOfTopThreeOfKindsRank) +
-        RankStrength.getRankStrength(twoTopRankOfRest)
+        CardValue.getValue(twoTopRankOfRest)
     }
   }
 
@@ -208,12 +209,12 @@ object Combination {
 
     override def checkComb(listOfCards: List[Card]): Boolean = {
       val listOfAllStraightComb: List[List[Rank]] = straight.keySet.toList
-      val cardRank: List[Rank] = listOfCards.map(_.rank).sortBy(RankStrength.cardRankValue)
+      val cardRank: List[Rank] = listOfCards.map(_.rank).sortBy(CardValue.cardRankValue)
 
       listOfAllStraightComb.map(_.diff(cardRank)).exists(_.isEmpty)
     }
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val listOfAllStraightComb: List[List[Rank]] = straight
         .keys
         .toList
@@ -241,17 +242,17 @@ object Combination {
         .exists(_._2.length >= 5)
     }
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val topFiveRankCardSimilarSuits: List[Rank] = listOfCards
         .groupBy(_.suit)
         .filter(_._2.length >= 5)
         .flatMap(_._2.map(_.rank))
         .toList
-        .sortBy(RankStrength.cardRankValue)
+        .sortBy(CardValue.cardRankValue)
         .reverse
         .take(5)
 
-      startCombValue + RankStrength.getRankStrength(topFiveRankCardSimilarSuits)
+      startCombValue + CardValue.getValue(topFiveRankCardSimilarSuits)
     }
   }
 
@@ -297,7 +298,7 @@ object Combination {
       numberOfTreeOfKind == 2 || (numberOfTreeOfKind == 1 && numberOfPair >= 1)
     }
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val listOfThreeSimilarRanks: List[List[Rank]] = listOfCards
         .groupBy(_.rank)
         .filter(_._2.length == 3)
@@ -359,7 +360,7 @@ object Combination {
         .exists(_._2.length == 4)
 
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val rankListFourOfKind: List[Rank] =
         listOfCards
           .groupBy(_.rank)
@@ -372,11 +373,11 @@ object Combination {
         listOfCards
           .map(_.rank)
           .diff(rankListFourOfKind)
-          .sortBy(RankStrength.cardRankValue)
+          .sortBy(CardValue.cardRankValue)
           .reverse
           .take(1)
 
-      startCombValue + fourOfAKind(rankListFourOfKind) + RankStrength.getRankStrength(restRankOfCards)
+      startCombValue + fourOfAKind(rankListFourOfKind) + CardValue.getValue(restRankOfCards)
     }
   }
 
@@ -412,7 +413,7 @@ object Combination {
         .exists(_.length == 5)
     }
 
-    override def getValueOfComb(listOfCards: List[Card]): Int = {
+    override def getCombStrength(listOfCards: List[Card]): Int = {
       val listOfRankFiveOrMoreSimilarSuite: List[Rank] =
         listOfCards
           .groupBy(_.suit)

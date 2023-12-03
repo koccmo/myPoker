@@ -37,7 +37,7 @@ class StraightTest extends AnyFunSuite with Matchers {
     val listOfCardWithOneStraightComb: List[Card] = List(Card(Ten, Hearts), Card(Two, Hearts), Card(Five, Clubs),
       Card(Three, Diamonds), Card(Four, Spades), Card(Six, Spades), Card(Nine, Hearts))
 
-    val result: Int = Straight.getValueOfComb(listOfCardWithOneStraightComb)
+    val result: Int = Straight.getCombStrength(listOfCardWithOneStraightComb)
 
     result shouldEqual 4000002
   }
@@ -48,7 +48,7 @@ class StraightTest extends AnyFunSuite with Matchers {
     val listOfCardWithOneStraightComb: List[Card] = List(Card(Seven, Hearts), Card(Two, Hearts), Card(Five, Clubs),
       Card(Three, Diamonds), Card(Four, Spades), Card(Six, Spades), Card(Nine, Hearts))
 
-    val result: Int = Straight.getValueOfComb(listOfCardWithOneStraightComb)
+    val result: Int = Straight.getCombStrength(listOfCardWithOneStraightComb)
 
     result shouldEqual 4000003
   }
@@ -59,7 +59,7 @@ class StraightTest extends AnyFunSuite with Matchers {
     val listOfCardWithOneStraightComb: List[Card] = List(Card(Seven, Hearts), Card(Two, Hearts), Card(Five, Clubs),
       Card(Three, Diamonds), Card(Four, Spades), Card(Six, Spades), Card(Ace, Hearts))
 
-    val result: Int = Straight.getValueOfComb(listOfCardWithOneStraightComb)
+    val result: Int = Straight.getCombStrength(listOfCardWithOneStraightComb)
 
     result shouldEqual 4000003
   }
@@ -70,7 +70,7 @@ class StraightTest extends AnyFunSuite with Matchers {
     val listOfCardWithStraightStartFromAce: List[Card] = List(Card(Nine, Hearts), Card(Two, Hearts), Card(Five, Clubs),
       Card(Three, Diamonds), Card(Four, Spades), Card(Jack, Spades), Card(Ace, Hearts))
 
-    val result: Int = Straight.getValueOfComb(listOfCardWithStraightStartFromAce)
+    val result: Int = Straight.getCombStrength(listOfCardWithStraightStartFromAce)
 
     result shouldEqual 4000001
   }
@@ -80,7 +80,7 @@ class StraightTest extends AnyFunSuite with Matchers {
     val listOfCardStraightStartFromFour: List[Card] = List(Card(Four, Clubs), Card(King, Spades), Card(Four, Hearts),
       Card(Eight, Spades), Card(Seven, Spades), Card(Five, Diamonds), Card(Six, Diamonds))
 
-    val result: Int = Straight.getValueOfComb(listOfCardStraightStartFromFour)
+    val result: Int = Straight.getCombStrength(listOfCardStraightStartFromFour)
 
     result shouldEqual 4000004
   }

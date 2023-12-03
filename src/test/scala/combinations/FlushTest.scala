@@ -41,7 +41,7 @@ class FlushTest extends AnyFunSuite with Matchers {
     val listCardFiveSimilarSuits: List[Card] = List(Card(Ten, Hearts), Card(Nine, Hearts), Card(Jack, Hearts),
       Card(Three, Diamonds), Card(Four, Hearts), Card(Six, Hearts), Card(Nine, Spades))
 
-    val result: Int = Flush.getValueOfComb(listCardFiveSimilarSuits)
+    val result: Int = Flush.getCombStrength(listCardFiveSimilarSuits)
 
     result shouldEqual 5406878
   }
@@ -50,7 +50,7 @@ class FlushTest extends AnyFunSuite with Matchers {
     val listCardSixSimilarSuits: List[Card] = List(Card(Ten, Hearts), Card(Nine, Hearts), Card(Jack, Hearts),
       Card(Three, Hearts), Card(Four, Hearts), Card(Six, Hearts), Card(Nine, Spades))
 
-    val result: Int = Flush.getValueOfComb(listCardSixSimilarSuits)
+    val result: Int = Flush.getCombStrength(listCardSixSimilarSuits)
 
     result shouldEqual 5406878
   }
@@ -59,7 +59,7 @@ class FlushTest extends AnyFunSuite with Matchers {
     val listCardSevenSimilarSuits: List[Card] = List(Card(Ten, Hearts), Card(Nine, Hearts), Card(Jack, Hearts),
       Card(Three, Hearts), Card(Four, Hearts), Card(Six, Hearts), Card(Two, Hearts))
 
-    val result: Int = Flush.getValueOfComb(listCardSevenSimilarSuits)
+    val result: Int = Flush.getCombStrength(listCardSevenSimilarSuits)
 
     result shouldEqual 5406878
   }

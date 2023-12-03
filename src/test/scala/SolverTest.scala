@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import scala.io.{BufferedSource, Source}
 
 class SolverTest extends AnyFunSuite with Matchers {
+
   test("Texas-Holdem test with inputs") {
     val sourceInput: BufferedSource = Source.fromFile("src/main/resources/myInput.txt")
     val linesInput: List[String] = sourceInput.getLines().toList
@@ -16,5 +17,4 @@ class SolverTest extends AnyFunSuite with Matchers {
 
     programOutput shouldEqual lineAnswer
   }
-
 }

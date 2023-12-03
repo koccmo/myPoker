@@ -40,7 +40,7 @@ class StraightFlushTest extends AnyFunSuite with Matchers {
     val cardListStraightFlushSixSimilarSuit: List[Card] = List(Card(Four, Hearts), Card(Nine, Spades), Card(Three, Hearts),
       Card(Ace, Hearts), Card(Five, Hearts), Card(Six, Hearts), Card(Two, Hearts))
 
-    val result: Int = StraightFlush.getValueOfComb(cardListStraightFlushSixSimilarSuit)
+    val result: Int = StraightFlush.getCombStrength(cardListStraightFlushSixSimilarSuit)
 
     result shouldEqual 8000002
   }
@@ -49,7 +49,7 @@ class StraightFlushTest extends AnyFunSuite with Matchers {
     val cardListStraightFlushFiveSimilarSuit: List[Card] = List(Card(Four, Hearts), Card(Nine, Spades), Card(Three, Hearts),
       Card(Ace, Hearts), Card(Five, Hearts), Card(Six, Spades), Card(Two, Hearts))
 
-    val result: Int = StraightFlush.getValueOfComb(cardListStraightFlushFiveSimilarSuit)
+    val result: Int = StraightFlush.getCombStrength(cardListStraightFlushFiveSimilarSuit)
 
     result shouldEqual 8000001
   }
@@ -58,7 +58,7 @@ class StraightFlushTest extends AnyFunSuite with Matchers {
     val cardListSixSimilarSuitOneStraightFlush: List[Card] = List(Card(Seven, Hearts), Card(Nine, Spades), Card(Eight, Hearts),
       Card(Ace, Hearts), Card(Five, Hearts), Card(Six, Hearts), Card(Nine, Hearts))
 
-    val result: Int = StraightFlush.getValueOfComb(cardListSixSimilarSuitOneStraightFlush)
+    val result: Int = StraightFlush.getCombStrength(cardListSixSimilarSuitOneStraightFlush)
 
     result shouldEqual 8000005
   }

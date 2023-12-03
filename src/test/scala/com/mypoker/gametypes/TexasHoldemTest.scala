@@ -14,7 +14,7 @@ class TexasHoldemTest extends AnyFunSuite with Matchers{
     val listOfCards: List[Card] = List(Card(King, Hearts), Card(King, Spades), Card(Queen, Spades), Card(Queen, Hearts),
       Card(Eight, Spades), Card(Queen, Hearts), Card(Five, Hearts))
 
-    val result: Int = Combination.getCardValue(listOfCards)
+    val result: Int = Combination.getStrength(listOfCards)
 
     result shouldBe 6001112
   }

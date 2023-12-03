@@ -49,7 +49,7 @@ class FullHouseTest extends AnyFunSuite with Matchers {
     val listWithTwoTimesThreeOfKind: List[Card] = List(Card(Ace, Diamonds), Card(Two, Spades), Card(Jack, Hearts),
       Card(Ace, Spades), Card(Two, Hearts), Card(Ace, Hearts), Card(Two, Hearts))
 
-    val result: Int = FullHouse.getValueOfComb(listWithTwoTimesThreeOfKind)
+    val result: Int = FullHouse.getCombStrength(listWithTwoTimesThreeOfKind)
 
     result shouldEqual 6001301
   }
@@ -58,7 +58,7 @@ class FullHouseTest extends AnyFunSuite with Matchers {
     val listCardOneThreeOfKindTwoPair: List[Card] = List(Card(Ace, Diamonds), Card(Two, Spades), Card(Jack, Hearts),
       Card(Ace, Spades), Card(Two, Hearts), Card(Ace, Hearts), Card(Jack, Hearts))
 
-    val result: Int = FullHouse.getValueOfComb(listCardOneThreeOfKindTwoPair)
+    val result: Int = FullHouse.getCombStrength(listCardOneThreeOfKindTwoPair)
 
     result shouldEqual 6001310
   }
@@ -67,7 +67,7 @@ class FullHouseTest extends AnyFunSuite with Matchers {
     val listOneThreeOfKindOnePair: List[Card] = List(Card(Nine, Diamonds), Card(Ten, Spades), Card(Jack, Hearts),
       Card(Nine, Spades), Card(Ten, Hearts), Card(Nine, Hearts), Card(Two, Hearts))
 
-    val result: Int = FullHouse.getValueOfComb(listOneThreeOfKindOnePair)
+    val result: Int = FullHouse.getCombStrength(listOneThreeOfKindOnePair)
 
     result shouldEqual 6000809
   }

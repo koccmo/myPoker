@@ -14,5 +14,4 @@ object Solver {
       case _ => "Invalid input"
     }
   }
-
 }
