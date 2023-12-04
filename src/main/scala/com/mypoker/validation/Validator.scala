@@ -2,8 +2,15 @@ package com.mypoker.validation
 
 import com.mypoker.domain.{Board, Card, Hand, Rank, Suit}
 import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
+import com.mypoker.gametypes.TexasHoldem
 
 object Validator {
+
+  def validateTexasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
+    for {
+      board <- Validator.validateBoard(board)
+      hands <- Validator.validateHands(hands)
+    } yield TexasHoldem(board, hands)
 
   def validateCard(str: String): Either[ValidationError, Card] =
     str.split("").toList match {
