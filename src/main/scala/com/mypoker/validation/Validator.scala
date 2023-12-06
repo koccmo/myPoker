@@ -1,9 +1,23 @@
 package com.mypoker.validation
 
-import com.mypoker.domain.{Board, Card, Hand, Rank, Suit}
-import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
+import com.mypoker.domain._
+import com.mypoker.gametypes.TexasHoldem
+import com.mypoker.validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
-object Validator {
+trait Validate {
+  def validateTexasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem]
+}
+
+object Validate {
+  def apply(): Validate = new Validate {
+    def validateTexasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] = {
+      for {
+        board <- validateBoard(board)
+        hands <- validateHands(hands)
+      } yield TexasHoldem(board, hands)
+    }
+  }
+
 
   def validateCard(str: String): Either[ValidationError, Card] =
     str.split("").toList match {

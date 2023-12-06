@@ -8,7 +8,6 @@ sealed trait Combination {
   def getCombStrength(listOfCards: List[Card]): Int
 
   def checkComb(listOfCards: List[Card]): Boolean
-
 }
 
 object Combination {
