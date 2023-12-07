@@ -15,8 +15,9 @@ object TexasHoldem {
     Ordering.by[Hand, Int](_.strength.getOrElse(0)) orElse Ordering.by[Hand, String](_.toString)
 
   def getAnswer(board: String, hands: List[String]): String = {
-    val ansOrError: Either[ValidationError, List[Hand]] =
-      validate.validateTexasHoldem(board, hands)
+    val result: Either[ValidationError, List[Hand]] =
+      validate
+        .texasHoldem(board, hands)
         .map {
           case TexasHoldem(board, hands) =>
             hands
@@ -24,7 +25,7 @@ object TexasHoldem {
               .sorted
         }
 
-    ansOrError match {
+    result match {
       case Left(error)  => error.description
       case Right(value) => parse(value)
     }

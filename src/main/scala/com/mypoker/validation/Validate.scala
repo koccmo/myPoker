@@ -5,19 +5,18 @@ import com.mypoker.gametypes.TexasHoldem
 import com.mypoker.validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 trait Validate {
-  def validateTexasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem]
+  def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem]
 }
 
 object Validate {
-  def apply(): Validate = new Validate {
-    def validateTexasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] = {
-      for {
-        board <- validateBoard(board)
-        hands <- validateHands(hands)
-      } yield TexasHoldem(board, hands)
+  def apply(): Validate =
+    new Validate {
+      def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
+        for {
+          board <- validateBoard(board)
+          hands <- validateHands(hands)
+        } yield TexasHoldem(board, hands)
     }
-  }
-
 
   def validateCard(str: String): Either[ValidationError, Card] =
     str.split("").toList match {
@@ -26,7 +25,7 @@ object Validate {
           rank <- Rank.fromString(r)
           suit <- Suit.fromString(s)
         } yield Card(rank, suit)
-      case _ => Left(WrongCardString)
+      case _             => Left(WrongCardString)
     }
 
   def validateBoard(board: String): Either[ValidationError, Board] = {
@@ -47,7 +46,7 @@ object Validate {
 
       exceptionOpt match {
         case Some(value) => Left(value)
-        case None => Right(Board(cards))
+        case None        => Right(Board(cards))
       }
     }
   }
@@ -67,7 +66,7 @@ object Validate {
 
       exception match {
         case Some(value) => Left(value)
-        case None => Right(cards.grouped(2).map(x => Hand(x)).toList)
+        case None        => Right(cards.grouped(2).map(x => Hand(x)).toList)
       }
     }
   }
