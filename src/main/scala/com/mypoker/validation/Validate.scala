@@ -11,6 +11,7 @@ trait Validate {
 object Validate {
   def apply(): Validate =
     new Validate {
+
       def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
         for {
           board <- validateBoard(board)
