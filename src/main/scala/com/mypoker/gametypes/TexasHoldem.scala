@@ -2,7 +2,7 @@ package com.mypoker.gametypes
 
 import com.mypoker.domain.{Board, Hand}
 import com.mypoker.validation.{Validate, ValidationError}
-import com.mypoker.{Combination, Parse}
+import com.mypoker.{CalculateCombinationStrength, Parse}
 
 final case class TexasHoldem(board: Board, hands: List[Hand])
 
@@ -10,6 +10,7 @@ object TexasHoldem {
 
   final val parse: Parse       = Parse()
   final val validate: Validate = Validate()
+  final val getStrength: CalculateCombinationStrength = CalculateCombinationStrength()
 
   implicit val handOrdering: Ordering[Hand] =
     Ordering.by[Hand, Int](_.strength.getOrElse(0)) orElse Ordering.by[Hand, String](_.toString)
@@ -21,7 +22,7 @@ object TexasHoldem {
         .map {
           case TexasHoldem(board, hands) =>
             hands
-              .map(x => x.copy(strength = Some(Combination.getStrength(board.cards ++ x.cards))))
+              .map(hand => hand.copy(strength = Some(getStrength(board.cards ++ hand.cards))))
               .sorted
         }
 

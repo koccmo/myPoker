@@ -1,6 +1,7 @@
 package com.mypoker.gametypes
 
-import com.mypoker.Combination
+
+import com.mypoker.CalculateCombinationStrength
 import com.mypoker.domain.Card
 import com.mypoker.domain.Rank._
 import com.mypoker.domain.Suit._
@@ -9,12 +10,13 @@ import org.scalatest.matchers.should.Matchers
 
 class TexasHoldemTest extends AnyFunSuite with Matchers{
 
+  val getStrength: CalculateCombinationStrength = CalculateCombinationStrength()
 
   test("Get Value of Card test") {
     val listOfCards: List[Card] = List(Card(King, Hearts), Card(King, Spades), Card(Queen, Spades), Card(Queen, Hearts),
       Card(Eight, Spades), Card(Queen, Hearts), Card(Five, Hearts))
 
-    val result: Int = Combination.getStrength(listOfCards)
+    val result: Int = getStrength(listOfCards)
 
     result shouldBe 6001112
   }
