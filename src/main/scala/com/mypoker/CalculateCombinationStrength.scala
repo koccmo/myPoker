@@ -3,13 +3,13 @@ package com.mypoker
 import com.mypoker.domain.Rank._
 import com.mypoker.domain.{Card, Rank}
 
+import scala.annotation.tailrec
+
 trait CalculateCombinationStrength {
   def apply(cards: List[Card]): Int
 }
 
 object CalculateCombinationStrength {
-
-  private val calculateCardsStrength: CalculateCardsStrength = CalculateCardsStrength()
 
   private val DefaultStraightFlush: Int    = 8000000
   private val DefaultFourOfKind: Int       = 7000000
@@ -19,6 +19,22 @@ object CalculateCombinationStrength {
   private val DefaultThreeOfKindValue: Int = 3000000
   private val DefaultTwoPairValue: Int     = 2000000
   private val DefaultPairValue: Int        = 1000000
+
+  private val CardRankValue: Map[Rank, Int] = Map(
+    Two   -> 1,
+    Three -> 2,
+    Four  -> 3,
+    Five  -> 4,
+    Six   -> 5,
+    Seven -> 6,
+    Eight -> 7,
+    Nine  -> 8,
+    Ten   -> 9,
+    Jack  -> 10,
+    Queen -> 11,
+    King  -> 12,
+    Ace   -> 13
+  )
 
   private val PairValueMap: Map[List[Rank], Int] = Map(
     List(Two, Two)     -> 10000,
@@ -145,7 +161,7 @@ object CalculateCombinationStrength {
 
       private def straight(cards: List[Card]): Boolean = {
         val combinationRanks: List[List[Rank]] = StraightMap.keySet.toList
-        val cardRank: List[Rank]               = cards.map(_.rank).sortBy(CalculateCardsStrength.cardRankValue)
+        val cardRank: List[Rank]               = cards.map(_.rank).sortBy(CardRankValue)
 
         combinationRanks.map(_.diff(cardRank)).exists(_.isEmpty)
       }
@@ -169,6 +185,25 @@ object CalculateCombinationStrength {
           .filter { case (_, cards) => cards.length == 2 }
           .toList
           .length == 1
+
+      private def getRanksStrength(ranks: List[Rank]): Int = {
+        @tailrec
+        def helper(ranks: List[Rank], rankValue: Int): Int = {
+          val newRankValue = ranks.length match {
+            case length if 2 to 5 contains length =>
+              Math.pow(13, ranks.length - 1) * CardRankValue.getOrElse(ranks.head, 0) + rankValue
+            case 1                                => CardRankValue.getOrElse(ranks.head, 0) + rankValue
+            case _                                => rankValue
+          }
+
+          ranks match {
+            case _ :: tail => helper(tail, newRankValue.toInt)
+            case _         => newRankValue.toInt
+          }
+        }
+
+        helper(ranks, 0)
+      }
 
       private def getStraightFlushStrength(cards: List[Card]): Int = {
         val ranksWithSimilarSuit: List[Rank] =
@@ -202,11 +237,11 @@ object CalculateCombinationStrength {
           cards
             .map(_.rank)
             .diff(fourOfKind)
-            .sortBy(CalculateCardsStrength.cardRankValue)
+            .sortBy(CardRankValue)
             .reverse
             .take(1)
 
-        DefaultFourOfKind + FourOfKindMap.getOrElse(fourOfKind, 0) + calculateCardsStrength(otherCards)
+        DefaultFourOfKind + FourOfKindMap.getOrElse(fourOfKind, 0) + getRanksStrength(otherCards)
       }
 
       private def getFullHouseStrength(cards: List[Card]): Int = {
@@ -251,11 +286,11 @@ object CalculateCombinationStrength {
           .filter { case (_, cards) => cards.length >= 5 }
           .flatMap { case (_, cards) => cards.map(_.rank) }
           .toList
-          .sortBy(CalculateCardsStrength.cardRankValue)
+          .sortBy(CardRankValue)
           .reverse
           .take(5)
 
-        DefaultFlushValue + calculateCardsStrength(topFiveRankCardSimilarSuits)
+        DefaultFlushValue + getRanksStrength(topFiveRankCardSimilarSuits)
       }
 
       private def getStraightStrength(cards: List[Card]): Int = {
@@ -277,7 +312,7 @@ object CalculateCombinationStrength {
       private def getThreeOfKindStrength(cards: List[Card]): Int = {
         val ranks: List[Rank] = cards
           .map(_.rank)
-          .sortBy(CalculateCardsStrength.cardRankValue)
+          .sortBy(CardRankValue)
 
         val threeOfKinds: List[Rank] = cards
           .groupBy(_.rank)
@@ -297,13 +332,13 @@ object CalculateCombinationStrength {
 
         DefaultThreeOfKindValue +
           ThreeOfKindMap.getOrElse(threeOfKinds, 0) +
-          calculateCardsStrength(otherTwoHighCards)
+          getRanksStrength(otherTwoHighCards)
       }
 
       private def getTwoPairStrength(cards: List[Card]): Int = {
         val ranks: List[Rank] = cards
           .map(_.rank)
-          .sortBy(CalculateCardsStrength.cardRankValue)
+          .sortBy(CardRankValue)
 
         val pairs: List[List[Rank]] = cards
           .groupBy(_.rank)
@@ -315,31 +350,31 @@ object CalculateCombinationStrength {
 
         if (pairs.length == 3) {
           val strongestTwoPair: List[List[Rank]] = pairs.drop(1)
-          val highestRank: List[Rank]          = ranks.diff(strongestTwoPair.flatten).reverse.take(1)
+          val highestRank: List[Rank]            = ranks.diff(strongestTwoPair.flatten).reverse.take(1)
 
           DefaultTwoPairValue +
             SecondPairMap.getOrElse(strongestTwoPair.head, 0) +
             PairValueMap.getOrElse(strongestTwoPair.last, 0) +
-            calculateCardsStrength(highestRank)
+            getRanksStrength(highestRank)
         } else {
           val highestRank: List[Rank] = ranks.diff(pairs.flatten).reverse.take(1)
 
           DefaultTwoPairValue +
             SecondPairMap.getOrElse(pairs.head, 0) +
             PairValueMap.getOrElse(pairs.last, 0) +
-            calculateCardsStrength(highestRank)
+            getRanksStrength(highestRank)
         }
       }
 
       private def getPairStrength(cards: List[Card]): Int = {
         val ranks: List[Rank] = cards
           .map(_.rank)
-          .sortBy(CalculateCardsStrength.cardRankValue)
+          .sortBy(CardRankValue)
 
         val pair: List[Rank] = cards
           .groupBy(_.rank)
-          .filter{ case (_, cards) => cards.length == 2 }
-          .flatMap{ case (_, cards) => cards }
+          .filter { case (_, cards) => cards.length == 2 }
+          .flatMap { case (_, cards) => cards }
           .map(_.rank)
           .toList
 
@@ -348,17 +383,17 @@ object CalculateCombinationStrength {
           .drop(2)
           .reverse
 
-        DefaultPairValue + PairValueMap.getOrElse(pair, 0) + calculateCardsStrength(otherCards)
+        DefaultPairValue + PairValueMap.getOrElse(pair, 0) + getRanksStrength(otherCards)
       }
 
       private def getHighCardStrength(cards: List[Card]): Int = {
         val ranks: List[Rank] = cards
           .map(card => card.rank)
-          .sortBy(CalculateCardsStrength.cardRankValue)
+          .sortBy(CardRankValue)
           .reverse
           .take(5)
 
-        calculateCardsStrength(ranks)
+        getRanksStrength(ranks)
       }
     }
 }

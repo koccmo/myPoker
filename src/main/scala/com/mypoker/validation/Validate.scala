@@ -52,7 +52,7 @@ object Validate {
 
           exception match {
             case Some(value) => Left(value)
-            case None => Right(cards.grouped(2).map(x => Hand(x)).toList)
+            case None => Right(cards.grouped(2).map(cards => Hand(cards)).toList)
           }
         }
       }
