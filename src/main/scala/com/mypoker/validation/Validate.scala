@@ -19,25 +19,10 @@ object Validate {
         } yield TexasHoldem(board, hands)
 
       private def validateBoard(board: String): Either[ValidationError, Board] =
-        validateBoardSize(board).flatMap { cardList =>
-          val result =
-            cardList
-              .map(validateCard)
-              .foldLeft((Option.empty[ValidationError], List.empty[Card])) {
-                case ((validationError, cards), value) =>
-                  value.fold(
-                    validationError => (Some(validationError), cards),
-                    card => (validationError, cards :+ card)
-                  )
-              }
-
-          val (validationError, cards) = result
-
-          validationError match {
-            case Some(value) => Left(value)
-            case None        => Right(Board(cards))
-          }
-        }
+        for {
+          validatedSize <- validateBoardSize(board)
+          board         <- validate(validatedSize)(validateCard)
+        } yield Board(board)
 
       private def validateBoardSize(str: String): Either[ValidationError, List[String]] =
         if (str.length == 10) Right(str.grouped(2).toList)
@@ -45,6 +30,7 @@ object Validate {
 
       private def validateHands(hands: List[String]): Either[ValidationError, List[Hand]] = {
         val validatedHands = hands.map(validateHand)
+
         val result = validatedHands.foldLeft((Option.empty[ValidationError], List.empty[Hand])) {
           case ((validationError, hands), value) =>
             value.fold(
@@ -59,30 +45,32 @@ object Validate {
         }
       }
 
-      private def validateHand(hand: String): Either[ValidationError, Hand] = {
-        val cards = for {
+      private def validateHand(hand: String): Either[ValidationError, Hand] =
+        for {
           validated <- validateHandSize(hand)
           grouped    = validated.grouped(2).toList
-        } yield grouped.map(validateCard)
-
-        cards.flatMap { handCards =>
-          val result = handCards.foldLeft((Option.empty[ValidationError], List.empty[Card])) {
-            case ((validationError, cards), value) =>
-              value.fold(validationError => (Some(validationError), cards), card => (validationError, cards :+ card))
-          }
-
-          val (validationError, cards) = result
-
-          validationError match {
-            case Some(error) => Left(error)
-            case None        => Right(Hand(cards))
-          }
-        }
-      }
+          cards     <- validate(grouped)(validateCard)
+        } yield Hand(cards)
 
       private def validateHandSize(hand: String): Either[ValidationError, String] =
         if (hand.length == 4) Right(hand)
         else Left(WrongHandStringLength)
+
+      private def validate[T](
+        items: List[String]
+      )(
+        function: String => Either[ValidationError, T]
+      ): Either[ValidationError, List[T]] = {
+        val result = items.map(function).foldLeft((Option.empty[ValidationError], List.empty[T])) {
+          case ((validationError, items), value) =>
+            value.fold(validationError => (Some(validationError), items), item => (validationError, items :+ item))
+        }
+
+        result match {
+          case (Some(error), _) => Left(error)
+          case (None, items)    => Right(items)
+        }
+      }
 
       private def validateCard(str: String): Either[ValidationError, Card] =
         str.split("").toList match {
