@@ -18,43 +18,16 @@ object Validate {
           hands <- validateHands(hands)
         } yield TexasHoldem(board, hands)
 
-      private def validateBoard(board: String): Either[ValidationError, Board] =
+      private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
-          validatedSize <- validateBoardSize(board)
-          board         <- validate(validatedSize)(validateCard)
-        } yield Board(board)
+          boardString    <- validateBoardSize(input)
+          cards           = boardString.grouped(2).toList
+          validatedCards <- validate(cards)(validateCard)
+        } yield Board(validatedCards)
 
-      private def validateBoardSize(str: String): Either[ValidationError, List[String]] =
-        if (str.length == 10) Right(str.grouped(2).toList)
+      private def validateBoardSize(str: String): Either[ValidationError, String] =
+        if (str.length == 10) Right(str)
         else Left(WrongBoardStringLength(str.length))
-
-      private def validateHands(hands: List[String]): Either[ValidationError, List[Hand]] = {
-        val validatedHands = hands.map(validateHand)
-
-        val result = validatedHands.foldLeft((Option.empty[ValidationError], List.empty[Hand])) {
-          case ((validationError, hands), value) =>
-            value.fold(
-              validationError => (Some(validationError), hands),
-              card => (validationError, hands :+ card)
-            )
-        }
-
-        result match {
-          case (Some(value), _) => Left(value)
-          case (None, hands)    => Right(hands)
-        }
-      }
-
-      private def validateHand(hand: String): Either[ValidationError, Hand] =
-        for {
-          validated <- validateHandSize(hand)
-          grouped    = validated.grouped(2).toList
-          cards     <- validate(grouped)(validateCard)
-        } yield Hand(cards)
-
-      private def validateHandSize(hand: String): Either[ValidationError, String] =
-        if (hand.length == 4) Right(hand)
-        else Left(WrongHandStringLength)
 
       private def validate[T](
         items: List[String]
@@ -81,5 +54,20 @@ object Validate {
             } yield Card(rank, suit)
           case _             => Left(WrongCardString)
         }
+
+      private def validateHands(input: List[String]): Either[ValidationError, List[Hand]] =
+        validate(input)(validateHand)
+
+      private def validateHand(input: String): Either[ValidationError, Hand] =
+        for {
+          handString     <- validateHandSize(input)
+          cards           = handString.grouped(2).toList
+          validatedCards <- validate(cards)(validateCard)
+        } yield Hand(validatedCards)
+
+      private def validateHandSize(str: String): Either[ValidationError, String] =
+        if (str.length == 4) Right(str)
+        else Left(WrongHandStringLength)
+
     }
 }
