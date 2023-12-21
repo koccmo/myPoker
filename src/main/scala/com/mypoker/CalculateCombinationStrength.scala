@@ -174,6 +174,7 @@ object CalculateCombinationStrength {
           case ((result, length), rank) if length <= 0 => (rank.strength + result, length - 1)
           case ((result, length), rank) if length >= 1 =>
             (Math.pow(13, length).toInt * rank.strength + result, length - 1)
+          case ((result, length), _)                   => (result, length)
         }
         result
 //        @tailrec

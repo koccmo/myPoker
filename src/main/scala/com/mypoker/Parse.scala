@@ -20,6 +20,7 @@ object Parse {
               (answer + s"=$hand", hand.strength.getOrElse(0))
             case ((answer, value), hand) if value != hand.strength.getOrElse(0) =>
               (answer + s" $hand", hand.strength.getOrElse(0))
+            case ((answer, value), _)                                           => (answer, value)
           }
         answer
       }
