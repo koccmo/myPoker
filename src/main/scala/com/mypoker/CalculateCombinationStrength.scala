@@ -3,24 +3,23 @@ package com.mypoker
 import com.mypoker.domain.Rank._
 import com.mypoker.domain.{Card, Rank}
 
-import scala.annotation.tailrec
-
 trait CalculateCombinationStrength {
+
   def apply(cards: List[Card]): Int
 }
 
 object CalculateCombinationStrength {
 
-  private val DefaultStraightFlush: Int    = 8000000
-  private val DefaultFourOfKind: Int       = 7000000
-  private val DefaultFullHouse: Int        = 6000000
-  private val DefaultFlushValue: Int       = 5000000
-  private val DefaultStraightValue: Int    = 4000000
-  private val DefaultThreeOfKindValue: Int = 3000000
-  private val DefaultTwoPairValue: Int     = 2000000
-  private val DefaultPairValue: Int        = 1000000
+  private val DefaultStraightFlushValue: Int = 8000000
+  private val DefaultFourOfKindValue: Int    = 7000000
+  private val DefaultFullHouseValue: Int     = 6000000
+  private val DefaultFlushValue: Int         = 5000000
+  private val DefaultStraightValue: Int      = 4000000
+  private val DefaultThreeOfKindValue: Int   = 3000000
+  private val DefaultTwoPairValue: Int       = 2000000
+  private val DefaultPairValue: Int          = 1000000
 
-  private val PairValueMap: Map[List[Rank], Int] = Map(
+  private val PairMap: Map[List[Rank], Int] = Map(
     List(Two, Two)     -> 10000,
     List(Three, Three) -> 20000,
     List(Four, Four)   -> 30000,
@@ -171,22 +170,43 @@ object CalculateCombinationStrength {
           .length == 1
 
       private def getRanksStrength(ranks: List[Rank]): Int = {
-        @tailrec
-        def helper(ranks: List[Rank], rankValue: Int): Int = {
-          val newRankValue = ranks.length match {
-            case length if 2 to 5 contains length =>
-              Math.pow(13, ranks.length - 1) * ranks.head.strength + rankValue
-            case 1                                => ranks.head.strength + rankValue
-            case _                                => rankValue
-          }
-
-          ranks match {
-            case _ :: tail => helper(tail, newRankValue.toInt)
-            case _         => newRankValue.toInt
-          }
+        val (result, _) = ranks.foldLeft(0, ranks.length - 1) {
+          case ((result, length), rank) if length <= 0 => (rank.strength + result, length - 1)
+          case ((result, length), rank) if length >= 1 =>
+            (Math.pow(13, length).toInt * rank.strength + result, length - 1)
         }
+        result
+//        @tailrec
+//        def helper(ranks: List[Rank], rankValue: Int): Int = {
+//          val newRankValue = ranks match {
+//            case rank :: tail if tail.nonEmpty => Math.pow(13, tail.length) * rank.strength + rankValue
+//            case rank :: tail if tail.isEmpty  => rank.strength + rankValue
+//            case _                             => rankValue
+//          }
+//
+//          ranks match {
+//            case _ :: tail => helper(tail, newRankValue.toInt)
+//            case _         => newRankValue.toInt
+//          }
+//        }
+//        helper(ranks, 0)
 
-        helper(ranks, 0)
+//        @tailrec
+//        def helper(ranks: List[Rank], rankValue: Int): Int = {
+//          val newRankValue = ranks.length match {
+//            case length if 2 to 5 contains length =>
+//              Math.pow(13, ranks.length - 1) * ranks.head.strength + rankValue
+//            case 1                                => ranks.head.strength + rankValue
+//            case _                                => rankValue
+//          }
+//
+//          ranks match {
+//            case _ :: tail => helper(tail, newRankValue.toInt)
+//            case _         => newRankValue.toInt
+//          }
+//        }
+//
+//        helper(ranks, 0)
       }
 
       private def getStraightFlushStrength(cards: List[Card]): Int = {
@@ -205,7 +225,7 @@ object CalculateCombinationStrength {
             .map(ranks => StraightMap.getOrElse(ranks, 0))
             .max
 
-        DefaultStraightFlush + combinationValue
+        DefaultStraightFlushValue + combinationValue
       }
 
       private def getFourOfKindStrength(cards: List[Card]): Int = {
@@ -225,7 +245,7 @@ object CalculateCombinationStrength {
             .reverse
             .take(1)
 
-        DefaultFourOfKind + FourOfKindMap.getOrElse(fourOfKind, 0) + getRanksStrength(otherCards)
+        DefaultFourOfKindValue + FourOfKindMap.getOrElse(fourOfKind, 0) + getRanksStrength(otherCards)
       }
 
       private def getFullHouseStrength(cards: List[Card]): Int = {
@@ -247,7 +267,7 @@ object CalculateCombinationStrength {
             .reverse
             .take(1)
 
-          DefaultFullHouse + ThreeOfKindMap.getOrElse(threeOfKinds.head, 0) +
+          DefaultFullHouseValue + ThreeOfKindMap.getOrElse(threeOfKinds.head, 0) +
             SecondPairMap.getOrElse(strongestPair.head, 0)
         } else {
           val strongestThreeOfKind: List[Rank] =
@@ -259,7 +279,7 @@ object CalculateCombinationStrength {
               .minBy(ThreeOfKindMap)
               .take(2)
 
-          DefaultFullHouse + ThreeOfKindMap.getOrElse(strongestThreeOfKind, 0) +
+          DefaultFullHouseValue + ThreeOfKindMap.getOrElse(strongestThreeOfKind, 0) +
             SecondPairMap.getOrElse(pair, 0)
         }
       }
@@ -330,7 +350,7 @@ object CalculateCombinationStrength {
           .values
           .toList
           .map(_.map(_.rank))
-          .sortBy(PairValueMap)
+          .sortBy(PairMap)
 
         if (pairs.length == 3) {
           val strongestTwoPair: List[List[Rank]] = pairs.drop(1)
@@ -338,14 +358,14 @@ object CalculateCombinationStrength {
 
           DefaultTwoPairValue +
             SecondPairMap.getOrElse(strongestTwoPair.head, 0) +
-            PairValueMap.getOrElse(strongestTwoPair.last, 0) +
+            PairMap.getOrElse(strongestTwoPair.last, 0) +
             getRanksStrength(highestRank)
         } else {
           val highestRank: List[Rank] = ranks.diff(pairs.flatten).reverse.take(1)
 
           DefaultTwoPairValue +
             SecondPairMap.getOrElse(pairs.head, 0) +
-            PairValueMap.getOrElse(pairs.last, 0) +
+            PairMap.getOrElse(pairs.last, 0) +
             getRanksStrength(highestRank)
         }
       }
@@ -367,7 +387,7 @@ object CalculateCombinationStrength {
           .drop(2)
           .reverse
 
-        DefaultPairValue + PairValueMap.getOrElse(pair, 0) + getRanksStrength(otherCards)
+        DefaultPairValue + PairMap.getOrElse(pair, 0) + getRanksStrength(otherCards)
       }
 
       private def getHighCardStrength(cards: List[Card]): Int = {

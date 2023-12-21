@@ -1,7 +1,5 @@
 package com.mypoker.domain
 
-import com.mypoker.validation.ValidationError
-
 sealed trait Suit
 
 object Suit{
@@ -13,12 +11,4 @@ object Suit{
   case object Hearts extends Suit { override def toString: String = "h" }
 
   case object Spades extends Suit { override def toString: String = "s" }
-
-  def fromString(s: String): Either[ValidationError, Suit] = s match {
-    case "h" => Right(Hearts)
-    case "d" => Right(Diamonds)
-    case "c" => Right(Clubs)
-    case "s" => Right(Spades)
-    case _ => Left(ValidationError.IncorrectSuit(s))
-  }
 }

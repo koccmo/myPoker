@@ -1,7 +1,5 @@
 package com.mypoker.domain
 
-import com.mypoker.validation.ValidationError
-
 sealed trait Rank {
   def strength: Int
 }
@@ -85,22 +83,4 @@ object Rank {
 
     override def strength: Int = 13
   }
-
-  def fromString(s: String): Either[ValidationError, Rank] =
-    s match {
-      case "2" => Right(Two)
-      case "3" => Right(Three)
-      case "4" => Right(Four)
-      case "5" => Right(Five)
-      case "6" => Right(Six)
-      case "7" => Right(Seven)
-      case "8" => Right(Eight)
-      case "9" => Right(Nine)
-      case "T" => Right(Ten)
-      case "J" => Right(Jack)
-      case "Q" => Right(Queen)
-      case "K" => Right(King)
-      case "A" => Right(Ace)
-      case _   => Left(ValidationError.IncorrectRank(s))
-    }
 }
