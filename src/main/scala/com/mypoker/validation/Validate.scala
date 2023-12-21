@@ -38,8 +38,8 @@ object Validate {
       ): Either[ValidationError, List[T]] = {
         val result = items.map(function)
           .foldLeft((Option.empty[ValidationError], List.empty[T])) {
-          case ((validationError, items), value) =>
-            value.fold(validationError => (Some(validationError), items), item => (validationError, items :+ item))
+          case ((error, items), value) =>
+            value.fold(error => (Some(error), items), item => (error, items :+ item))
         }
 
         result match {
