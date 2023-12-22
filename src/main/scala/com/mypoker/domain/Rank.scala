@@ -6,6 +6,9 @@ sealed trait Rank {
 
 object Rank {
 
+  val Ranks: List[Rank]           = List(Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace)
+  val RanksMap: Map[String, Rank] = Ranks.map(rank => (rank.toString, rank)).toMap
+
   case object Two extends Rank {
     override def toString: String = "2"
 

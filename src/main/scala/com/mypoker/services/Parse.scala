@@ -1,4 +1,4 @@
-package com.mypoker
+package com.mypoker.services
 
 import com.mypoker.domain.Hand
 

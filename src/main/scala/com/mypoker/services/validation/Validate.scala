@@ -1,12 +1,15 @@
-package com.mypoker.validation
+package com.mypoker.services.validation
 
 import com.mypoker.domain.Rank._
 import com.mypoker.domain.Suit._
 import com.mypoker.domain._
-import com.mypoker.validation.ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
+import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 trait Validate {
   def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem]
+  def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw]
+
+  def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem]
 }
 
 object Validate {
@@ -17,8 +20,19 @@ object Validate {
       def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
         for {
           board <- validateBoard(board)
-          hands <- validate(hands)(validateHand)
+          hands <- validate(hands)(validateHand(_, 4))
         } yield TexasHoldem(board, hands)
+
+      def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] =
+        for {
+          hands <- validate(hands)(validateHand(_,10))
+        } yield FiveCardDraw(hands)
+
+     def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem] =
+       for {
+         board <- validateBoard(board)
+         hands <- validate(hands)(validateHand(_, 8))
+       } yield OmahaHoldem(board, hands)
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
@@ -36,11 +50,12 @@ object Validate {
       )(
         function: String => Either[ValidationError, T]
       ): Either[ValidationError, List[T]] = {
-        val result = items.map(function)
+        val result = items
+          .map(function)
           .foldLeft((Option.empty[ValidationError], List.empty[T])) {
-          case ((error, items), value) =>
-            value.fold(error => (Some(error), items), item => (error, items :+ item))
-        }
+            case ((error, items), value) =>
+              value.fold(error => (Some(error), items), item => (error, items :+ item))
+          }
 
         result match {
           case (Some(error), _) => Left(error)
@@ -59,40 +74,26 @@ object Validate {
         }
 
       private def validateRank(s: String): Either[ValidationError, Rank] =
-        s match {
-          case "2" => Right(Two)
-          case "3" => Right(Three)
-          case "4" => Right(Four)
-          case "5" => Right(Five)
-          case "6" => Right(Six)
-          case "7" => Right(Seven)
-          case "8" => Right(Eight)
-          case "9" => Right(Nine)
-          case "T" => Right(Ten)
-          case "J" => Right(Jack)
-          case "Q" => Right(Queen)
-          case "K" => Right(King)
-          case "A" => Right(Ace)
-          case _ => Left(ValidationError.IncorrectRank(s))
+        RanksMap.get(s) match {
+          case Some(value) => Right(value)
+          case None        => Left(ValidationError.IncorrectRank(s))
         }
 
-      private def validateSuit(s: String): Either[ValidationError, Suit] = s match {
-        case "h" => Right(Hearts)
-        case "d" => Right(Diamonds)
-        case "c" => Right(Clubs)
-        case "s" => Right(Spades)
-        case _ => Left(ValidationError.IncorrectSuit(s))
-      }
+      private def validateSuit(s: String): Either[ValidationError, Suit] =
+        SuitsMap.get(s) match {
+          case Some(value) => Right(value)
+          case None        => Left(ValidationError.IncorrectSuit(s))
+        }
 
-      private def validateHand(input: String): Either[ValidationError, Hand] =
+      private def validateHand(input: String, expectedLength: Int): Either[ValidationError, Hand] =
         for {
-          handString     <- validateHandSize(input)
+          handString     <- validateHandSize(input, expectedLength)
           cards           = handString.grouped(2).toList
           validatedCards <- validate(cards)(validateCard)
         } yield Hand(validatedCards)
 
-      private def validateHandSize(str: String): Either[ValidationError, String] =
-        if (str.length == 4) Right(str)
+      private def validateHandSize(str: String, expectedLength: Int): Either[ValidationError, String] =
+        if (str.length == expectedLength) Right(str)
         else Left(WrongHandStringLength)
     }
 }
