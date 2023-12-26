@@ -1,6 +1,6 @@
 package com.mypoker.services
 
-import com.mypoker.domain.Rank._
+import com.mypoker.domain.Rank.{Five, _}
 import com.mypoker.domain.{Card, Rank}
 
 trait CalculateStrength {
@@ -19,82 +19,19 @@ object CalculateStrength {
   private val DefaultTwoPairValue: Int       = 2000000
   private val DefaultPairValue: Int          = 1000000
 
-  private val PairMap: Map[List[Rank], Int] = Map(
-    List(Two, Two)     -> 10000,
-    List(Three, Three) -> 20000,
-    List(Four, Four)   -> 30000,
-    List(Five, Five)   -> 40000,
-    List(Six, Six)     -> 50000,
-    List(Seven, Seven) -> 60000,
-    List(Eight, Eight) -> 70000,
-    List(Nine, Nine)   -> 80000,
-    List(Ten, Ten)     -> 90000,
-    List(Jack, Jack)   -> 100000,
-    List(Queen, Queen) -> 110000,
-    List(King, King)   -> 120000,
-    List(Ace, Ace)     -> 130000
-  )
-
-  private val SecondPairMap: Map[List[Rank], Int] = Map(
-    List(Two, Two)     -> 50,
-    List(Three, Three) -> 100,
-    List(Four, Four)   -> 150,
-    List(Five, Five)   -> 200,
-    List(Six, Six)     -> 250,
-    List(Seven, Seven) -> 300,
-    List(Eight, Eight) -> 350,
-    List(Nine, Nine)   -> 400,
-    List(Ten, Ten)     -> 450,
-    List(Jack, Jack)   -> 500,
-    List(Queen, Queen) -> 550,
-    List(King, King)   -> 600,
-    List(Ace, Ace)     -> 650
-  )
-
-  private val ThreeOfKindMap: Map[List[Rank], Int] = Map(
-    List(Two, Two, Two)       -> 1000,
-    List(Three, Three, Three) -> 2000,
-    List(Four, Four, Four)    -> 3000,
-    List(Five, Five, Five)    -> 4000,
-    List(Six, Six, Six)       -> 5000,
-    List(Seven, Seven, Seven) -> 6000,
-    List(Eight, Eight, Eight) -> 7000,
-    List(Nine, Nine, Nine)    -> 8000,
-    List(Ten, Ten, Ten)       -> 9000,
-    List(Jack, Jack, Jack)    -> 10000,
-    List(Queen, Queen, Queen) -> 11000,
-    List(King, King, King)    -> 12000,
-    List(Ace, Ace, Ace)       -> 13000
-  )
-
-  private val StraightMap: Map[List[Rank], Int] = Map(
-    List(Ace, Two, Three, Four, Five)   -> 1,
-    List(Two, Three, Four, Five, Six)   -> 2,
-    List(Three, Four, Five, Six, Seven) -> 3,
-    List(Four, Five, Six, Seven, Eight) -> 4,
-    List(Five, Six, Seven, Eight, Nine) -> 5,
-    List(Six, Seven, Eight, Nine, Ten)  -> 6,
-    List(Seven, Eight, Nine, Ten, Jack) -> 7,
-    List(Eight, Nine, Ten, Jack, Queen) -> 8,
-    List(Nine, Ten, Jack, Queen, King)  -> 9,
-    List(Ten, Jack, Queen, King, Ace)   -> 10
-  )
-
-  private val FourOfKindMap: Map[List[Rank], Int] = Map(
-    List(Two, Two, Two, Two)         -> 100,
-    List(Three, Three, Three, Three) -> 200,
-    List(Four, Four, Four, Four)     -> 300,
-    List(Five, Five, Five, Five)     -> 400,
-    List(Six, Six, Six, Six)         -> 500,
-    List(Seven, Seven, Seven, Seven) -> 600,
-    List(Eight, Eight, Eight, Eight) -> 700,
-    List(Nine, Nine, Nine, Nine)     -> 800,
-    List(Ten, Ten, Ten, Ten)         -> 900,
-    List(Jack, Jack, Jack, Jack)     -> 1000,
-    List(Queen, Queen, Queen, Queen) -> 1100,
-    List(King, King, King, King)     -> 1200,
-    List(Ace, Ace, Ace, Ace)         -> 1300
-  )
+  private val StraightCombinations: List[List[Rank]] =
+    List(
+      List(Ace, Two, Three, Four, Five),
+      List(Two, Three, Four, Five, Six),
+      List(Three, Four, Five, Six, Seven),
+      List(Four, Five, Six, Seven, Eight),
+      List(Five, Six, Seven, Eight, Nine),
+      List(Six, Seven, Eight, Nine, Ten),
+      List(Seven, Eight, Nine, Ten, Jack),
+      List(Eight, Nine, Ten, Jack, Queen),
+      List(Nine, Ten, Jack, Queen, King),
+      List(Ten, Jack, Queen, King, Ace)
+    )
 
   private def getRanksStrength(ranks: List[Rank]): Int = {
     val (result, _) = ranks.foldLeft(0, ranks.length) {
@@ -105,7 +42,6 @@ object CalculateStrength {
   }
 
   def apply(): CalculateStrength =
-
     new CalculateStrength {
 
       def apply(cards: List[Card]): Int = {
@@ -119,7 +55,7 @@ object CalculateStrength {
               .flatMap(_.map(_.rank))
               .toList
 
-          StraightMap.keys.toList
+          StraightCombinations
             .map(_.intersect(fivePlusRank))
             .exists(_.length == 5)
         }
@@ -131,8 +67,8 @@ object CalculateStrength {
 
         def fullHouse: Boolean = {
           val map: Map[Rank, List[Card]] = cards.groupBy(_.rank)
-          val treeOfKinds: Int = map.count { case (_, cards) => cards.length == 3 }
-          val pairs: Int = map.count { case (_, cards) => cards.length == 2 }
+          val treeOfKinds: Int           = map.count { case (_, cards) => cards.length == 3 }
+          val pairs: Int                 = map.count { case (_, cards) => cards.length == 2 }
 
           treeOfKinds == 2 || (treeOfKinds == 1 && pairs >= 1)
         }
@@ -143,10 +79,9 @@ object CalculateStrength {
             .exists { case (_, cards) => cards.length >= 5 }
 
         def straight: Boolean = {
-          val combinationRanks: List[List[Rank]] = StraightMap.keySet.toList
-          val cardRank: List[Rank] = cards.map(_.rank).sortBy(_.strength)
+          val cardRank: List[Rank] = cards.map(_.rank)
 
-          combinationRanks.map(_.diff(cardRank)).exists(_.isEmpty)
+          StraightCombinations.map(_.diff(cardRank)).exists(_.isEmpty)
         }
 
         def threeOfKind: Boolean =
@@ -154,7 +89,7 @@ object CalculateStrength {
             .groupBy(_.rank)
             .exists { case (_, cards) => cards.length == 3 }
 
-        def twoPair: Boolean =
+        def twoPair: Boolean     =
           cards
             .groupBy(_.rank)
             .filter { case (_, cards) => cards.length == 2 }
@@ -170,22 +105,15 @@ object CalculateStrength {
             .length == 1
 
         def getStraightFlushStrength: Int = {
-          val ranksWithSimilarSuit: List[Rank] =
+          val ranksWithSimilarSuit: List[List[Rank]] =
             cards
               .groupBy(_.suit)
               .filter { case (_, cards) => cards.length >= 5 }
               .values
-              .flatMap(_.map(_.rank))
+              .map(_.map(_.rank))
               .toList
 
-          val combinationValue: Int =
-            StraightMap.keys
-              .map(_.intersect(ranksWithSimilarSuit))
-              .filter(_.length == 5)
-              .map(ranks => StraightMap.getOrElse(ranks, 0))
-              .max
-
-          DefaultStraightFlushValue + combinationValue
+          DefaultStraightFlushValue + ranksWithSimilarSuit.map(getRanksStrength).max
         }
 
         def getFourOfKindStrength: Int = {
@@ -205,44 +133,31 @@ object CalculateStrength {
               .reverse
               .take(1)
 
-          DefaultFourOfKindValue + FourOfKindMap.getOrElse(fourOfKind, 0) + getRanksStrength(otherCards)
+          DefaultFourOfKindValue + getRanksStrength(fourOfKind ++ otherCards)
         }
 
         def getFullHouseStrength: Int = {
-          val threeOfKinds: List[List[Rank]] = cards
-            .groupBy(_.rank)
-            .filter { case (_, cards) => cards.length == 3 }
-            .values
+          val threeOfKind: List[Rank] = cards
+            .map(_.rank)
+            .groupBy(_.strength)
+            .filter { case (_, ranks) => ranks.length == 3 }
             .toList
-            .map(_.map(_.rank))
+            .sortBy { case (value, _) => value }
+            .reverse
+            .take(1)
+            .flatMap { case (_, ranks) => ranks }
 
-          if (threeOfKinds.length == 1) {
-            val strongestPair: List[Rank] = cards
-              .groupBy(_.rank)
-              .filter { case (_, cards) => cards.length == 2 }
-              .values
-              .toList
-              .map(_.map(_.rank))
-              .sortBy(SecondPairMap)
-              .reverse
-              .take(1)
-              .flatten
+          val pair: List[Rank]        = cards
+            .map(_.rank)
+            .diff(threeOfKind)
+            .groupBy(_.strength)
+            .filter { case (_, ranks) => ranks.length >= 2 }
+            .toList
+            .reverse
+            .take(1)
+            .flatMap { case (_, ranks) => ranks.take(2) }
 
-            DefaultFullHouseValue + ThreeOfKindMap.getOrElse(threeOfKinds.flatten, 0) +
-              SecondPairMap.getOrElse(strongestPair, 0)
-          } else {
-            val strongestThreeOfKind: List[Rank] =
-              threeOfKinds
-                .maxBy(ThreeOfKindMap)
-
-            val pair: List[Rank] =
-              threeOfKinds
-                .minBy(ThreeOfKindMap)
-                .take(2)
-
-            DefaultFullHouseValue + ThreeOfKindMap.getOrElse(strongestThreeOfKind, 0) +
-              SecondPairMap.getOrElse(pair, 0)
-          }
+          DefaultFullHouseValue + getRanksStrength(threeOfKind ++ pair)
         }
 
         def getFlushStrength: Int = {
@@ -259,99 +174,70 @@ object CalculateStrength {
         }
 
         def getStraightStrength: Int = {
-          val straightCombination: List[List[Rank]] = StraightMap.keys.toList
+          val straights: List[List[Rank]] = StraightCombinations
+            .map(_.intersect(cards.map(_.rank)))
 
-          val cardRanks: List[Rank] = cards.map(_.rank)
-
-          val foundedCombinations: List[List[Rank]] = straightCombination
-            .map(_.intersect(cardRanks))
-            .filter(_.length == 5)
-
-          val valueTopCombination: Int = foundedCombinations
-            .map(combination => StraightMap(combination))
-            .max
-
-          DefaultStraightValue + valueTopCombination
+          DefaultStraightValue + straights.map(getRanksStrength).max
         }
 
         def getThreeOfKindStrength: Int = {
-          val ranks: List[Rank] = cards
+          val threeOfKind: List[Rank]     = cards
             .map(_.rank)
-            .sortBy(_.strength)
-
-          val threeOfKinds: List[Rank] = cards
-            .groupBy(_.rank)
-            .filter { case (_, cards) => cards.length == 3 }
-            .values
-            .map(_.map(_.rank))
+            .groupBy(_.strength)
+            .filter { case (_, ranks) => ranks.length == 3 }
             .toList
-            .sortBy(ThreeOfKindMap)
+            .sortBy { case (value, _) => value }
             .reverse
             .take(1)
-            .flatten
+            .flatMap { case (_, ranks) => ranks }
 
-          val otherTwoHighCards: List[Rank] = ranks
-            .diff(threeOfKinds)
+          val twoHighestRanks: List[Rank] = cards
+            .map(_.rank)
+            .diff(threeOfKind)
+            .sortBy(_.strength)
             .reverse
             .take(2)
 
-          DefaultThreeOfKindValue +
-            ThreeOfKindMap.getOrElse(threeOfKinds, 0) +
-            getRanksStrength(otherTwoHighCards)
+          DefaultThreeOfKindValue + getRanksStrength(threeOfKind ++ twoHighestRanks)
         }
 
         def getTwoPairStrength: Int = {
-          val ranks: List[Rank] = cards
+          val pairs: List[Rank] = cards
             .map(_.rank)
-            .sortBy(_.strength)
-
-          val pairs: List[List[Rank]] = cards
-            .groupBy(_.rank)
-            .filter { case (_, cards) => cards.length == 2 }
-            .values
+            .groupBy(_.strength)
+            .filter { case (_, ranks) => ranks.length == 2 }
+            .flatMap { case (_, ranks) => ranks }
             .toList
-            .map(_.map(_.rank))
-            .sortBy(PairMap)
-
-          val strongPair: List[Rank] = pairs
+            .sortBy(_.strength)
             .reverse
-            .take(1)
-            .flatten
+            .take(4)
 
-          val weakPair: List[Rank] = pairs
-            .reverse
-            .slice(1, 2)
-            .flatten
-
-          val highestRank: List[Rank] = ranks
-            .diff(strongPair ++ weakPair)
+          val highestRank: List[Rank] = cards
+            .map(_.rank)
+            .diff(pairs)
+            .sortBy(_.strength)
             .reverse
             .take(1)
 
-            DefaultTwoPairValue +
-              SecondPairMap.getOrElse(weakPair, 0) +
-              PairMap.getOrElse(strongPair, 0) +
-              getRanksStrength(highestRank)
+          DefaultTwoPairValue + getRanksStrength(pairs ++ highestRank)
         }
 
         def getPairStrength: Int = {
-          val ranks: List[Rank] = cards
+          val pair = cards
             .map(_.rank)
-            .sortBy(_.strength)
-
-          val pair: List[Rank] = cards
-            .groupBy(_.rank)
-            .filter { case (_, cards) => cards.length == 2 }
-            .flatMap { case (_, cards) => cards }
-            .map(_.rank)
+            .groupBy(_.strength)
+            .filter { case (_, ranks) => ranks.length == 2 }
+            .flatMap { case (_, ranks) => ranks }
             .toList
 
-          val otherCards: List[Rank] = ranks
+          val threeHighestRanks: List[Rank] = cards
+            .map(_.rank)
             .diff(pair)
-            .drop(2)
+            .sortBy(_.strength)
             .reverse
+            .take(3)
 
-          DefaultPairValue + PairMap.getOrElse(pair, 0) + getRanksStrength(otherCards)
+          DefaultPairValue + getRanksStrength(pair ++ threeHighestRanks)
         }
 
         def getHighCardStrength: Int = {

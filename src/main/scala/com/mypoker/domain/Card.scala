@@ -6,3 +6,8 @@ final case class Card(rank: Rank, suit: Suit) {
     rank.toString + suit.toString
   }
 }
+
+object Card {
+
+  val CardStringLength: Int = 2
+}

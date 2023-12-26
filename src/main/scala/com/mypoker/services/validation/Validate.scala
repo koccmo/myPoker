@@ -4,6 +4,10 @@ import com.mypoker.domain.Rank.RankValuesMap
 import com.mypoker.domain.Suit.SuitValuesMap
 import com.mypoker.domain._
 import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
+import com.mypoker.domain.Card.CardStringLength
+import com.mypoker.domain.FiveCardDraw.FiveCardDrawHandStringLength
+import com.mypoker.domain.OmahaHoldem.OmahaHoldemHandStringLength
+import com.mypoker.domain.TexasHoldem.TexasHoldemHandStringLength
 
 trait Validate {
 
@@ -20,28 +24,28 @@ object Validate {
       def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
         for {
           board <- validateBoard(board)
-          hands <- validate(hands)(validateHand(_, 4))
+          hands <- validate(hands)(validateHand(_, TexasHoldemHandStringLength))
         } yield TexasHoldem(board, hands)
 
       def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] = {
-        validate(hands)(validateHand(_,10)).map(x => FiveCardDraw(x))
+        validate(hands)(validateHand(_, FiveCardDrawHandStringLength)).map(x => FiveCardDraw(x))
       }
 
       def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem] =
         for {
           board <- validateBoard(board)
-          hands <- validate(hands)(validateHand(_, 8))
+          hands <- validate(hands)(validateHand(_, OmahaHoldemHandStringLength))
         } yield OmahaHoldem(board, hands)
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
           boardString    <- validateBoardSize(input)
-          cards           = boardString.grouped(2).toList
+          cards           = boardString.grouped(CardStringLength).toList
           validatedCards <- validate(cards)(validateCard)
         } yield Board(validatedCards)
 
-      private def validateBoardSize(str: String): Either[ValidationError, String] =
-        if (str.length == 10) Right(str)
+      private def validateBoardSize(str: String, boardStringLength: Int = 10): Either[ValidationError, String] =
+        if (str.length == boardStringLength) Right(str)
         else Left(WrongBoardStringLength(str.length))
 
       private def validate[T](
