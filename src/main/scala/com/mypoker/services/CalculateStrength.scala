@@ -97,8 +97,8 @@ object CalculateStrength {
   )
 
   private def getRanksStrength(ranks: List[Rank]): Int = {
-    val (result, _) = ranks.foldLeft(0, ranks.length - 1) {
-      case ((result, length), rank) => (Math.pow(13, length).toInt * rank.strength + result, length - 1)
+    val (result, _) = ranks.foldLeft(0, ranks.length) {
+      case ((result, length), rank) => (Math.pow(rank.strength, length).toInt + result, length - 1)
     }
 
     result

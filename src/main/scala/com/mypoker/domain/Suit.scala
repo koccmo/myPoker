@@ -4,9 +4,6 @@ sealed trait Suit
 
 object Suit{
 
-  val Suits: List[Suit] = List(Clubs, Diamonds, Hearts, Spades)
-  val SuitsMap: Map[String, Suit] = Suits.map(suit => suit.toString -> suit).toMap
-
   case object Clubs extends Suit { override def toString: String = "c" }
 
   case object Diamonds extends Suit { override def toString: String = "d" }
@@ -14,4 +11,7 @@ object Suit{
   case object Hearts extends Suit { override def toString: String = "h" }
 
   case object Spades extends Suit { override def toString: String = "s" }
+
+  val ValuesList: List[Suit] = List(Clubs, Diamonds, Hearts, Spades)
+  val SuitValuesMap: Map[String, Suit] = ValuesList.map(suit => suit.toString -> suit).toMap
 }

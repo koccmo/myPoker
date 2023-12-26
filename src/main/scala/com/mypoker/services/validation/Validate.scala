@@ -1,14 +1,14 @@
 package com.mypoker.services.validation
 
-import com.mypoker.domain.Rank._
-import com.mypoker.domain.Suit._
+import com.mypoker.domain.Rank.RankValuesMap
+import com.mypoker.domain.Suit.SuitValuesMap
 import com.mypoker.domain._
 import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
 
 trait Validate {
+
   def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem]
   def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw]
-
   def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem]
 }
 
@@ -23,16 +23,15 @@ object Validate {
           hands <- validate(hands)(validateHand(_, 4))
         } yield TexasHoldem(board, hands)
 
-      def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] =
-        for {
-          hands <- validate(hands)(validateHand(_,10))
-        } yield FiveCardDraw(hands)
+      def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] = {
+        validate(hands)(validateHand(_,10)).map(x => FiveCardDraw(x))
+      }
 
-     def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem] =
-       for {
-         board <- validateBoard(board)
-         hands <- validate(hands)(validateHand(_, 8))
-       } yield OmahaHoldem(board, hands)
+      def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem] =
+        for {
+          board <- validateBoard(board)
+          hands <- validate(hands)(validateHand(_, 8))
+        } yield OmahaHoldem(board, hands)
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
@@ -74,13 +73,13 @@ object Validate {
         }
 
       private def validateRank(s: String): Either[ValidationError, Rank] =
-        RanksMap.get(s) match {
+        RankValuesMap.get(s) match {
           case Some(value) => Right(value)
           case None        => Left(ValidationError.IncorrectRank(s))
         }
 
       private def validateSuit(s: String): Either[ValidationError, Suit] =
-        SuitsMap.get(s) match {
+        SuitValuesMap.get(s) match {
           case Some(value) => Right(value)
           case None        => Left(ValidationError.IncorrectSuit(s))
         }
