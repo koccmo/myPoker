@@ -1,6 +1,6 @@
 package com.mypoker.services
 
-import com.mypoker.domain.{FiveCardDraw, Hand, TexasHoldem}
+import com.mypoker.domain.{FiveCardDraw, Hand, OmahaHoldem, TexasHoldem}
 import com.mypoker.services.validation.{Validate, ValidationError}
 
 trait ProcessResult {
@@ -19,7 +19,7 @@ object ProcessResult {
       def apply(line: String): String =
         line.split("\\s+").toList match {
           case "texas-holdem" :: board :: hands => texasResult(board, hands)
-          case "omaha-holdem" :: board :: hands => "The solution doesn't support Omaha Hold'em"
+          case "omaha-holdem" :: board :: hands => omahaHoldemResult(board, hands)
           case "five-card-draw" :: hands        => fiveCardDrawResult(hands)
           case x :: _                           => "Unrecognized game type"
           case _                                => "Invalid input"
@@ -52,6 +52,30 @@ object ProcessResult {
             .map {
               case FiveCardDraw(hands) =>
                 hands.map { hand => hand.copy(strength = Some(calculateStrength(hand.cards))) }.sorted
+            }
+
+        result match {
+          case Left(error)  => error.description
+          case Right(value) => parse(value)
+        }
+      }
+
+      private def omahaHoldemResult(board: String, hands: List[String]): String = {
+        val result =
+          validate
+            .omahaHoldem(board, hands)
+            .map {
+              case OmahaHoldem(board, hands) =>
+                hands.map { hand =>
+                  val combinedBoard        = board.cards.combinations(3).toList
+                  val combinedHand         = hand.cards.combinations(2).toList
+                  val combinations        = combinedBoard.flatMap(boardCombination =>
+                    combinedHand.map(handCombination => boardCombination ++ handCombination)
+                  )
+                  val topValueCombinations = combinations.map(combination => calculateStrength(combination)).max
+
+                  hand.copy(strength = Some(topValueCombinations))
+                }.sorted
             }
 
         result match {

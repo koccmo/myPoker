@@ -72,5 +72,5 @@ object Rank {
   }
 
   val ValuesList: List[Rank] = List(Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace)
-  val RankValuesMap: Map[String, Rank] = ValuesList.map(rank => (rank.toString, rank)).toMap
+  val ValuesMap: Map[String, Rank] = ValuesList.map(rank => (rank.toString, rank)).toMap
 }

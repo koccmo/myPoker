@@ -1,13 +1,7 @@
 package com.mypoker.services.validation
 
-import com.mypoker.domain.Rank.RankValuesMap
-import com.mypoker.domain.Suit.SuitValuesMap
 import com.mypoker.domain._
-import ValidationError.{WrongBoardStringLength, WrongCardString, WrongHandStringLength}
-import com.mypoker.domain.Card.CardStringLength
-import com.mypoker.domain.FiveCardDraw.FiveCardDrawHandStringLength
-import com.mypoker.domain.OmahaHoldem.OmahaHoldemHandStringLength
-import com.mypoker.domain.TexasHoldem.TexasHoldemHandStringLength
+import com.mypoker.services.validation.ValidationError.{WrongCardString, WrongHandLength}
 
 trait Validate {
 
@@ -24,34 +18,37 @@ object Validate {
       def texasHoldem(board: String, hands: List[String]): Either[ValidationError, TexasHoldem] =
         for {
           board <- validateBoard(board)
-          hands <- validate(hands)(validateHand(_, TexasHoldemHandStringLength))
+          hands <- validateHands(hands, TexasHoldem.HandSize)
         } yield TexasHoldem(board, hands)
 
-      def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] = {
-        validate(hands)(validateHand(_, FiveCardDrawHandStringLength)).map(x => FiveCardDraw(x))
-      }
+      def fiveCardDraw(hands: List[String]): Either[ValidationError, FiveCardDraw] =
+        for {
+          hands <- validateHands(hands, FiveCardDraw.HandSize)
+        } yield FiveCardDraw(hands)
 
       def omahaHoldem(board: String, hands: List[String]): Either[ValidationError, OmahaHoldem] =
         for {
           board <- validateBoard(board)
-          hands <- validate(hands)(validateHand(_, OmahaHoldemHandStringLength))
+          hands <- validateHands(hands, OmahaHoldem.HandSize)
         } yield OmahaHoldem(board, hands)
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
-          boardString    <- validateBoardSize(input)
-          cards           = boardString.grouped(CardStringLength).toList
-          validatedCards <- validate(cards)(validateCard)
+          cards          <- validateBoardCard(input)
+          validatedCards <- validateBoardSize(cards, Board.Size)
         } yield Board(validatedCards)
 
-      private def validateBoardSize(str: String, boardStringLength: Int = 10): Either[ValidationError, String] =
-        if (str.length == boardStringLength) Right(str)
-        else Left(WrongBoardStringLength(str.length))
+      private def validateBoardCard(input: String): Either[ValidationError, List[Card]] =
+        validate(input.grouped(Card.StringLength).toList)(validateCard)
 
-      private def validate[T](
-        items: List[String]
+      private def validateBoardSize(input: List[Card], expectedLength: Int): Either[ValidationError, List[Card]] =
+        if (input.length == expectedLength) Right(input)
+        else Left(ValidationError.WrongBoardLength(input.length))
+
+      private def validate[T, A](
+        items: List[A]
       )(
-        function: String => Either[ValidationError, T]
+        function: A => Either[ValidationError, T]
       ): Either[ValidationError, List[T]] = {
         val result = items
           .map(function)
@@ -77,26 +74,28 @@ object Validate {
         }
 
       private def validateRank(s: String): Either[ValidationError, Rank] =
-        RankValuesMap.get(s) match {
+        Rank.ValuesMap.get(s) match {
           case Some(value) => Right(value)
           case None        => Left(ValidationError.IncorrectRank(s))
         }
 
       private def validateSuit(s: String): Either[ValidationError, Suit] =
-        SuitValuesMap.get(s) match {
+        Suit.ValuesMap.get(s) match {
           case Some(value) => Right(value)
           case None        => Left(ValidationError.IncorrectSuit(s))
         }
 
-      private def validateHand(input: String, expectedLength: Int): Either[ValidationError, Hand] =
+      private def validateHands(input: List[String], handLength: Int): Either[ValidationError, List[Hand]] =
         for {
-          handString     <- validateHandSize(input, expectedLength)
-          cards           = handString.grouped(2).toList
-          validatedCards <- validate(cards)(validateCard)
-        } yield Hand(validatedCards)
+          cards <- validate(input)(validateHand)
+          hands <- validate(cards)(validateHandSize(_, handLength))
+        } yield hands
 
-      private def validateHandSize(str: String, expectedLength: Int): Either[ValidationError, String] =
-        if (str.length == expectedLength) Right(str)
-        else Left(WrongHandStringLength)
+      private def validateHand(input: String): Either[ValidationError, List[Card]] =
+        validate(input.grouped(Card.StringLength).toList)(validateCard)
+
+      private def validateHandSize(input: List[Card], expectedSize: Int): Either[ValidationError, Hand] =
+        if (input.length == expectedSize) Right(Hand(input))
+        else Left(WrongHandLength(input.length))
     }
 }

@@ -1,7 +1,7 @@
 package com.mypoker.services
 
-import com.mypoker.domain.Rank.{Five, _}
-import com.mypoker.domain.{Card, Rank}
+import com.mypoker.domain.Rank._
+import com.mypoker.domain.{Card, Rank, Suit}
 
 trait CalculateStrength {
 
@@ -33,49 +33,36 @@ object CalculateStrength {
       List(Ten, Jack, Queen, King, Ace)
     )
 
-  private def getRanksStrength(ranks: List[Rank]): Int = {
-    val (result, _) = ranks.foldLeft(0, ranks.length) {
-      case ((result, length), rank) => (Math.pow(rank.strength, length).toInt + result, length - 1)
-    }
-
-    result
-  }
-
   def apply(): CalculateStrength =
     new CalculateStrength {
 
       def apply(cards: List[Card]): Int = {
 
+        val rankCardsTuples: List[(Rank, List[Card])] = cards.groupBy(_.rank).toList
+        val suitCardsTuples: List[(Suit, List[Card])] = cards.groupBy(_.suit).toList
+
         def straightFlush: Boolean = {
-          val fivePlusRank: List[Rank] =
-            cards
-              .groupBy(_.suit)
+          val fivePlusRank: List[Rank] = suitCardsTuples
               .filter { case (_, cards) => cards.length >= 5 }
-              .values
+              .map { case (_, cards) => cards }
               .flatMap(_.map(_.rank))
-              .toList
 
           StraightCombinations
             .map(_.intersect(fivePlusRank))
             .exists(_.length == 5)
         }
 
-        def fourOfKind: Boolean =
-          cards
-            .groupBy(_.rank)
+        def fourOfKind: Boolean = rankCardsTuples
             .exists { case (_, cards) => cards.length == 4 }
 
         def fullHouse: Boolean = {
-          val map: Map[Rank, List[Card]] = cards.groupBy(_.rank)
-          val treeOfKinds: Int           = map.count { case (_, cards) => cards.length == 3 }
-          val pairs: Int                 = map.count { case (_, cards) => cards.length == 2 }
+          val treeOfKinds: Int = rankCardsTuples.count { case (_, cards) => cards.length == 3 }
+          val pairs: Int       = rankCardsTuples.count { case (_, cards) => cards.length == 2 }
 
           treeOfKinds == 2 || (treeOfKinds == 1 && pairs >= 1)
         }
 
-        def flush: Boolean =
-          cards
-            .groupBy(_.suit)
+        def flush: Boolean = suitCardsTuples
             .exists { case (_, cards) => cards.length >= 5 }
 
         def straight: Boolean = {
@@ -84,49 +71,33 @@ object CalculateStrength {
           StraightCombinations.map(_.diff(cardRank)).exists(_.isEmpty)
         }
 
-        def threeOfKind: Boolean =
-          cards
-            .groupBy(_.rank)
+        def threeOfKind: Boolean = rankCardsTuples
             .exists { case (_, cards) => cards.length == 3 }
 
-        def twoPair: Boolean     =
-          cards
-            .groupBy(_.rank)
+        def twoPair: Boolean = rankCardsTuples
             .filter { case (_, cards) => cards.length == 2 }
-            .values
-            .toList
+            .map { case (_, cards) => cards }
             .length >= 2
 
         def pair: Boolean =
-          cards
-            .groupBy(_.rank)
-            .filter { case (_, cards) => cards.length == 2 }
-            .toList
-            .length == 1
+          rankCardsTuples.count { case (_, cards) => cards.length == 2 } == 1
 
         def getStraightFlushStrength: Int = {
-          val ranksWithSimilarSuit: List[List[Rank]] =
-            cards
-              .groupBy(_.suit)
+          val ranksWithSimilarSuit: List[List[Rank]] = suitCardsTuples
               .filter { case (_, cards) => cards.length >= 5 }
-              .values
+              .map { case (_, cards)    => cards }
               .map(_.map(_.rank))
-              .toList
 
           DefaultStraightFlushValue + ranksWithSimilarSuit.map(getRanksStrength).max
         }
 
         def getFourOfKindStrength: Int = {
-          val fourOfKind: List[Rank] =
-            cards
-              .groupBy(_.rank)
+          val fourOfKind: List[Rank] = rankCardsTuples
               .filter { case (_, cards) => cards.length == 4 }
-              .values
-              .toList
+              .map { case (_, cards) => cards }
               .flatMap(_.map(_.rank))
 
-          val otherCards: List[Rank] =
-            cards
+          val otherCards: List[Rank] = cards
               .map(_.rank)
               .diff(fourOfKind)
               .sortBy(_.strength)
@@ -161,11 +132,9 @@ object CalculateStrength {
         }
 
         def getFlushStrength: Int = {
-          val topFiveRankCardSimilarSuits: List[Rank] = cards
-            .groupBy(_.suit)
+          val topFiveRankCardSimilarSuits: List[Rank] = suitCardsTuples
             .filter { case (_, cards) => cards.length >= 5 }
             .flatMap { case (_, cards) => cards.map(_.rank) }
-            .toList
             .sortBy(_.strength)
             .reverse
             .take(5)
@@ -248,6 +217,14 @@ object CalculateStrength {
             .take(5)
 
           getRanksStrength(ranks)
+        }
+
+        def getRanksStrength(ranks: List[Rank]): Int = {
+          val (result, _) = ranks.foldLeft(0, ranks.length) {
+            case ((result, length), rank) => (Math.pow(rank.strength, length).toInt + result, length - 1)
+          }
+
+          result
         }
 
         if (straightFlush) getStraightFlushStrength

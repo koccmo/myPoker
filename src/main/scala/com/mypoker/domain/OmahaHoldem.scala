@@ -3,5 +3,6 @@ package com.mypoker.domain
 final case class OmahaHoldem(board: Board, hands: List[Hand])
 
 object OmahaHoldem {
-  val OmahaHoldemHandStringLength: Int = 8
+
+  val HandSize: Int = 4
 }

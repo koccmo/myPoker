@@ -13,5 +13,5 @@ object Suit{
   case object Spades extends Suit { override def toString: String = "s" }
 
   val ValuesList: List[Suit] = List(Clubs, Diamonds, Hearts, Spades)
-  val SuitValuesMap: Map[String, Suit] = ValuesList.map(suit => suit.toString -> suit).toMap
+  val ValuesMap: Map[String, Suit] = ValuesList.map(suit => suit.toString -> suit).toMap
 }

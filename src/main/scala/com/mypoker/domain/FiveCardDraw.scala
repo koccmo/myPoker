@@ -4,5 +4,5 @@ final case class FiveCardDraw(hands: List[Hand])
 
 object FiveCardDraw {
 
-  val FiveCardDrawHandStringLength: Int = 10
+  val HandSize: Int = 5
 }

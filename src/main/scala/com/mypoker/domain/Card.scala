@@ -9,5 +9,5 @@ final case class Card(rank: Rank, suit: Suit) {
 
 object Card {
 
-  val CardStringLength: Int = 2
+  val StringLength: Int = 2
 }
