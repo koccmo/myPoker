@@ -1,6 +1,6 @@
 package com.mypoker.services
 
-import com.mypoker.domain.{FiveCardDraw, Hand, TexasHoldem}
+import com.mypoker.domain.{FiveCardDraw, GameType, Hand, OmahaHoldem, TexasHoldem}
 import com.mypoker.services.validation.{Validate, ValidationError}
 
 trait ProcessResult {
@@ -18,46 +18,51 @@ object ProcessResult {
 
       def apply(line: String): String =
         line.split("\\s+").toList match {
-          case "texas-holdem" :: board :: hands => texasResult(board, hands)
-          case "omaha-holdem" :: board :: hands => "The solution doesn't support Omaha Hold'em"
-          case "five-card-draw" :: hands        => fiveCardDrawResult(hands)
-          case x :: _                           => "Unrecognized game type"
+          case "texas-holdem" :: board :: hands => process(board, hands)(validate.texasHoldem)
+          case "omaha-holdem" :: board :: hands => process(board, hands)(validate.omahaHoldem)
+          case "five-card-draw" :: hands        => process("", hands)((_, hands) => validate.fiveCardDraw(hands))
+          case gameType :: _                    => s"Unrecognized game type $gameType"
           case _                                => "Invalid input"
         }
 
       implicit val handOrdering: Ordering[Hand] =
         Ordering.by[Hand, Int](_.strength.getOrElse(0)) orElse Ordering.by[Hand, String](_.toString)
 
-      private def texasResult(board: String, hands: List[String]): String = {
+      private def process(
+        board: String,
+        hands: List[String]
+      )(
+        validateGameType: (String, List[String]) => Either[ValidationError, GameType]
+      ): String = {
         val result: Either[ValidationError, List[Hand]] =
-          validate
-            .texasHoldem(board, hands)
-            .map {
-              case TexasHoldem(board, hands) =>
-                hands
-                  .map(hand => hand.copy(strength = Some(calculateStrength(board.cards ++ hand.cards))))
-                  .sorted
+          validateGameType(board, hands)
+            .map { gameType =>
+              gameType.hands
+                .map(hand => hand.copy(strength = Some(getHandStrength(gameType, hand))))
+                .sorted
             }
 
+        extractResult(result)
+      }
+
+      private def getHandStrength(gameType: GameType, hand: Hand): Int =
+        gameType match {
+          case _: FiveCardDraw       => calculateStrength(hand.cards)
+          case TexasHoldem(board, _) => calculateStrength(board.cards ++ hand.cards)
+          case OmahaHoldem(board, _) =>
+            val handStrengths =
+              for {
+                boardCardCombination <- board.cards.combinations(3)
+                handCardCombination  <- hand.cards.combinations(2)
+              } yield calculateStrength(boardCardCombination ++ handCardCombination)
+
+            handStrengths.max
+        }
+
+      private def extractResult(result: Either[ValidationError, List[Hand]]): String =
         result match {
           case Left(error)  => error.description
           case Right(value) => parse(value)
         }
-      }
-
-      private def fiveCardDrawResult(hands: List[String]): String = {
-        val result =
-          validate
-            .fiveCardDraw(hands)
-            .map {
-              case FiveCardDraw(hands) =>
-                hands.map { hand => hand.copy(strength = Some(calculateStrength(hand.cards))) }.sorted
-            }
-
-        result match {
-          case Left(error)  => error.description
-          case Right(value) => parse(value)
-        }
-      }
     }
 }
