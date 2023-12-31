@@ -34,12 +34,13 @@ object Validate {
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
-          cards          <- validateBoardCard(input)
+          cards          <- validateCards(input)
           validatedCards <- validateBoardSize(cards, Board.Size)
         } yield Board(validatedCards)
 
-      private def validateBoardCard(input: String): Either[ValidationError, List[Card]] =
+      private def validateCards(input: String): Either[ValidationError, List[Card]] = {
         validate(input.grouped(Card.StringLength).toList)(validateCard)
+      }
 
       private def validateBoardSize(input: List[Card], expectedLength: Int): Either[ValidationError, List[Card]] =
         if (input.length == expectedLength) Right(input)
@@ -74,25 +75,16 @@ object Validate {
         }
 
       private def validateRank(s: String): Either[ValidationError, Rank] =
-        Rank.ValuesMap.get(s) match {
-          case Some(value) => Right(value)
-          case None        => Left(ValidationError.IncorrectRank(s))
-        }
+        Rank.ValuesMap.get(s).toRight(ValidationError.IncorrectRank(s))
 
       private def validateSuit(s: String): Either[ValidationError, Suit] =
-        Suit.ValuesMap.get(s) match {
-          case Some(value) => Right(value)
-          case None        => Left(ValidationError.IncorrectSuit(s))
-        }
+        Suit.ValuesMap.get(s).toRight(ValidationError.IncorrectSuit(s))
 
       private def validateHands(input: List[String], handLength: Int): Either[ValidationError, List[Hand]] =
         for {
-          cards <- validate(input)(validateHand)
+          cards <- validate(input)(validateCards)
           hands <- validate(cards)(validateHandSize(_, handLength))
         } yield hands
-
-      private def validateHand(input: String): Either[ValidationError, List[Card]] =
-        validate(input.grouped(Card.StringLength).toList)(validateCard)
 
       private def validateHandSize(input: List[Card], expectedSize: Int): Either[ValidationError, Hand] =
         if (input.length == expectedSize) Right(Hand(input))
