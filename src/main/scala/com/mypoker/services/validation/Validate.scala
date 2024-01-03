@@ -32,9 +32,9 @@ object Validate {
 
       private def validateBoard(input: String): Either[ValidationError, Board] =
         for {
-          cards          <- validate(input.grouped(Card.StringLength).toList)(validateCard)
-          validatedCards <- validateCardsSize(cards, Board.Size)
-        } yield Board(validatedCards)
+          cards <- validate(input.grouped(Card.StringLength).toList)(validateCard)
+          _     <- validateCardsAmount(cards, Board.Size)
+        } yield Board(cards)
 
       private def validate[T, A](
         items: List[A]
@@ -70,14 +70,14 @@ object Validate {
       private def validateSuit(s: String): Either[ValidationError, Suit] =
         Suit.ValuesMap.get(s).toRight(ValidationError.IncorrectSuit(s))
 
-      private def validateCardsSize(input: List[Card], expectedSize: Int): Either[ValidationError, List[Card]] =
-        if (input.length == expectedSize) Right(input)
-        else Left(ValidationError.WrongBoardLength(input.length))
+      private def validateCardsAmount(input: List[Card], expectedAmount: Int): Either[ValidationError, Unit] =
+        if (input.length == expectedAmount) Right()
+        else Left(ValidationError.WrongCardAmount(input.length))
 
       private def validateHand(input: String, expectedSize: Int): Either[ValidationError, Hand] =
         for {
-          cards          <- validate(input.grouped(Card.StringLength).toList)(validateCard)
-          validatedCards <- validateCardsSize(cards, expectedSize)
-        } yield Hand(validatedCards)
+          cards <- validate(input.grouped(Card.StringLength).toList)(validateCard)
+          _     <- validateCardsAmount(cards, expectedSize)
+        } yield Hand(cards)
     }
 }
