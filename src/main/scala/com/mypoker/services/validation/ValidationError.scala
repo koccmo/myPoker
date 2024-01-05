@@ -19,7 +19,7 @@ object ValidationError {
     override def description: String = s"Wrong card string"
   }
 
-  final case class WrongCardAmount(length: Int) extends ValidationError {
-    override def description: String = s"Error: wrong Card amount - $length"
+  final case class WrongCardAmount(amount: Int) extends ValidationError {
+    override def description: String = s"Error: wrong cards amount - $amount"
   }
 }

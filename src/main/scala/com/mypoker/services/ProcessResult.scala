@@ -1,6 +1,7 @@
 package com.mypoker.services
 
-import com.mypoker.domain.{FiveCardDraw, Hand, OmahaHoldem, TexasHoldem}
+import com.mypoker.domain.GameType.{FiveCardDraw, OmahaHoldem, TexasHoldem}
+import com.mypoker.domain.Hand
 import com.mypoker.services.validation.{Validate, ValidationError}
 
 trait ProcessResult {
@@ -83,5 +84,6 @@ object ProcessResult {
           case Right(value) => parse(value)
         }
       }
+
     }
 }

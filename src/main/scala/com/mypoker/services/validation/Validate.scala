@@ -1,5 +1,6 @@
 package com.mypoker.services.validation
 
+import com.mypoker.domain.GameType.{FiveCardDraw, OmahaHoldem, TexasHoldem}
 import com.mypoker.domain._
 import com.mypoker.services.validation.ValidationError.WrongCardString
 
@@ -74,10 +75,10 @@ object Validate {
         if (input.length == expectedAmount) Right()
         else Left(ValidationError.WrongCardAmount(input.length))
 
-      private def validateHand(input: String, expectedSize: Int): Either[ValidationError, Hand] =
+      private def validateHand(input: String, cardsAmount: Int): Either[ValidationError, Hand] =
         for {
           cards <- validate(input.grouped(Card.StringLength).toList)(validateCard)
-          _     <- validateCardsAmount(cards, expectedSize)
+          _     <- validateCardsAmount(cards, cardsAmount)
         } yield Hand(cards)
     }
 }
