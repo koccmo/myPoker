@@ -42,7 +42,10 @@ object ProcessResult {
                 .sorted
             }
 
-        extractResult(result)
+        result match {
+          case Left(error) => error.description
+          case Right(value) => parse(value)
+        }
       }
 
       private def getHandStrength(gameType: GameType, hand: Hand): Int =
@@ -57,12 +60,6 @@ object ProcessResult {
               } yield calculateStrength(boardCardCombination ++ handCardCombination)
 
             handStrengths.max
-        }
-
-      private def extractResult(result: Either[ValidationError, List[Hand]]): String =
-        result match {
-          case Left(error)  => error.description
-          case Right(value) => parse(value)
         }
     }
 }
